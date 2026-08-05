@@ -19,11 +19,8 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from api.routes import load_models, predict_grade, predict_doubt, get_model_status
+from api.routes import predict_grade, predict_doubt, get_model_status
 from api.schemas import CodeGradingRequest, DoubtTriageRequest
-
-# Ensure models are loaded
-load_models(str(PROJECT_ROOT / "models"))
 
 # =============================================================================
 # Helper Handler Functions
