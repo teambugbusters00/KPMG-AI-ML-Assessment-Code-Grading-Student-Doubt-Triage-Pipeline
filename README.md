@@ -1,18 +1,27 @@
-# 🎓 LMS ML Pipeline — Code Grading & Doubt Triage
+# 🎓 LMS AI/ML Pipeline — Code Quality Grading & Student Doubt Triage
 
-> Production-quality ML pipeline for a Learning Management System (LMS).  
-> Built for the **KPMG Off-Campus Hiring Assessment**.
+> Production-quality Machine Learning & NLP Pipeline for Learning Management Systems (LMS).  
+> Built for the **KPMG AI/ML Off-Campus Hiring Assessment**.
+
+---
+
+## 🌐 Live Web Interfaces & API Links
+
+- **Interactive Dashboard:** `https://<your-render-url>/` *(Sleek HTML/JS Web App)*
+- **Gradio Interactive UI:** `https://<your-render-url>/gradio` *(Full 3-Tab Gradio App)*
+- **FastAPI Swagger Docs:** `https://<your-render-url>/docs`
+- **API Health Check:** `https://<your-render-url>/health`
 
 ---
 
 ## 📋 Overview
 
-This project implements **two independent ML pipelines**:
+This project implements **two production-grade ML pipelines**:
 
 | Pipeline | Goal | Dataset | Model |
 |----------|------|---------|-------|
-| **Code Grading** | Predict software defect likelihood | NASA KC1 | LightGBM |
-| **Doubt Triage** | Classify student questions & route | CS1QA | LinearSVC + Calibration |
+| **Pipeline 1: Code Grading** | Predict code quality & defect likelihood from software metrics | `SoftwareDefectDataset.csv` (`Project_CodeNet/assets/`) | LightGBM + Optuna |
+| **Pipeline 2: Doubt Triage** | Classify programming questions, estimate urgency & route queries | CS1QA Dataset | LinearSVC + CalibratedClassifierCV |
 
 ---
 
@@ -21,37 +30,42 @@ This project implements **two independent ML pipelines**:
 ```
 kpmg/
 ├── data/
-│   ├── raw/                    # Original datasets
+│   ├── raw/                    # Original raw datasets
 │   └── processed/              # Cleaned & split data
+├── Project_CodeNet/
+│   └── assets/
+│       └── SoftwareDefectDataset.csv # Primary dataset for Pipeline 1
 ├── notebooks/
 │   ├── 01_code_grading.py      # Pipeline 1 notebook (16 sections)
 │   └── 02_doubt_triage.py      # Pipeline 2 notebook (16 sections)
 ├── src/
-│   ├── config.py               # Central configuration
+│   ├── config.py               # Central configuration module
 │   ├── utils.py                # Logging, seed management, helpers
-│   ├── data_loader.py          # Dataset download & loading
-│   ├── preprocessing.py        # Duplicates, missing, outliers, leakage
-│   ├── feature_engineering.py  # Derived software metrics
-│   ├── text_processing.py      # NLP cleaning & TF-IDF
-│   ├── model_training.py       # Training, CV, Optuna tuning
-│   ├── evaluation.py           # Metrics & visualization
-│   ├── explainability.py       # SHAP analysis
-│   └── threshold_optimizer.py  # Confidence threshold optimization
-├── models/                     # Saved model artifacts (.pkl)
+│   ├── data_loader.py          # Dataset downloading & loading
+│   ├── preprocessing.py        # Duplicates, missing values, outliers, leakage check
+│   ├── feature_engineering.py  # Derived software metrics (Complexity/LOC, Fan Ratio, etc.)
+│   ├── text_processing.py      # NLP cleaning & TF-IDF vectorization
+│   ├── model_training.py       # Baseline RF, LightGBM, Optuna 5-fold CV, LinearSVC
+│   ├── evaluation.py           # Metrics, confusion matrix, ROC/PR curves
+│   ├── explainability.py       # SHAP TreeExplainer analysis
+│   └── threshold_optimizer.py  # Confidence threshold optimization & routing
+├── models/                     # Saved model artifacts (.pkl & .json)
 ├── reports/
-│   ├── figures/                # Generated plots
-│   └── final_report.md         # Professional report
+│   ├── figures/                # Generated visualization plots
+│   └── final_report.md         # Professional technical report
 ├── api/
-│   ├── app.py                  # FastAPI application
+│   ├── app.py                  # FastAPI server entry point
+│   ├── gradio_app.py           # Full Gradio Blocks interface
+│   ├── dashboard.html          # Custom web dashboard landing page
 │   ├── schemas.py              # Pydantic request/response models
-│   └── routes.py               # Endpoint handlers
+│   └── routes.py               # Endpoint logic handlers
 ├── requirements.txt
 └── README.md
 ```
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start & Local Execution
 
 ### 1. Install Dependencies
 
@@ -59,170 +73,103 @@ kpmg/
 pip install -r requirements.txt
 ```
 
-### 2. Run Notebooks
-
-The notebook scripts use `# %%` cell markers and can be run in:
-- **VS Code**: Open the `.py` file → Run Cell (Ctrl+Enter)
-- **Jupyter**: Convert first with `jupytext --to notebook notebooks/01_code_grading.py`
-- **Google Colab**: Copy cell contents into Colab cells
+### 2. Run Notebooks / Pipeline Scripts
 
 ```bash
-# Run Pipeline 1
+# Run Pipeline 1 (Code Quality Grading)
 python notebooks/01_code_grading.py
 
-# Run Pipeline 2
+# Run Pipeline 2 (Student Doubt Triage)
 python notebooks/02_doubt_triage.py
 ```
 
-### 3. Start the API
+### 3. Start Combined Server (FastAPI + Gradio)
 
 ```bash
 uvicorn api.app:app --reload --port 8000
 ```
 
-API documentation available at: `http://localhost:8000/docs`
+- Web Dashboard: `http://localhost:8000/`
+- Gradio UI: `http://localhost:8000/gradio`
+- Interactive Swagger API: `http://localhost:8000/docs`
 
 ---
 
-## 📡 API Endpoints
+## 📡 API Endpoints & Request Examples
 
-### Health Check
-```bash
-GET /health
-```
+### 1. Code Quality Grading (`POST /predict-grade`)
 
-### Predict Code Grade
-```bash
-POST /predict-grade
-Content-Type: application/json
-
+**Request Payload:**
+```json
 {
-  "loc": 150,
-  "v(g)": 12,
-  "ev(g)": 4,
-  "iv(g)": 8,
-  "n": 250,
-  "v": 1500.5,
-  "l": 0.02,
-  "d": 25.3,
-  "i": 59.4,
-  "e": 37962.65,
-  "b": 0.5,
-  "t": 2109.04,
-  "lOCode": 120,
-  "lOComment": 20,
-  "lOBlank": 10,
-  "branchCount": 15
+  "LOC": 0.08,
+  "CYCLO": 0.43,
+  "LENGTH": 0.18,
+  "VOLUME": 0.16,
+  "DIFFICULTY": 0.0,
+  "INT_FAN_IN": 0.0,
+  "INT_FAN_OUT": 0.22,
+  "NUM_OPERATORS": 0.14,
+  "NUM_OPERANDS": 0.81,
+  "BRANCH_COUNT": 0.64
 }
 ```
 
-**Response:**
+**Response Payload:**
 ```json
 {
+  "quality": "Good",
   "prediction": "No Defect",
-  "confidence": 0.87,
-  "defect_probability": 0.13,
-  "feature_values": { ... }
+  "confidence": 0.94,
+  "defect_probability": 0.06,
+  "review_needed": false,
+  "feature_values": {
+    "Complexity_per_LOC": 5.375,
+    "Branch_Density": 8.0,
+    "Fan_Ratio": 0.0,
+    "Complexity_x_LOC": 0.0344,
+    "Halstead_per_LOC": 2.0
+  }
 }
 ```
 
-### Predict Doubt Category
-```bash
-POST /predict-doubt
-Content-Type: application/json
+### 2. Student Doubt Triage (`POST /predict-doubt`)
 
-{
-  "question": "Why am I getting a syntax error on line 15 of my Python code?"
-}
-```
-
-**Response:**
+**Request Payload:**
 ```json
 {
-  "prediction": "syntax",
-  "confidence": 0.92,
-  "urgency": "HIGH",
-  "route": "Auto Approval",
-  "all_probabilities": { ... }
+  "question": "My code throws NullPointerException when calling array element inside loop"
+}
+```
+
+**Response Payload:**
+```json
+{
+  "prediction": "Java Programming",
+  "confidence": 0.91,
+  "urgency": "MEDIUM",
+  "route": "Teacher Review",
+  "all_probabilities": {
+    "Java Programming": 0.91,
+    "Python Syntax": 0.05,
+    "Database Errors": 0.04
+  }
 }
 ```
 
 ---
 
-## 📊 Pipeline Details
+## 💡 Tradeoffs & Handling Ambiguity
 
-### Pipeline 1: Code Grading
+1. **Defect Prediction as Proxy for Code Quality (Pipeline 1):**
+   - **Ambiguity:** Benchmark datasets with human teacher grading rubrics are scarce in open ML literature.
+   - **Tradeoff & Resolution:** Software defect prediction metrics (McCabe complexity, Halstead metrics, fan-in/fan-out) serve as an objective proxy for code submission quality. Lower defect probability indicates higher software quality.
 
-| Step | Detail |
-|------|--------|
-| Dataset | NASA KC1 (OpenML ID: 1067) |
-| Features | 21 raw + 6 engineered |
-| Baseline | Random Forest (`class_weight='balanced'`) |
-| Final Model | LightGBM (Optuna-tuned, 50 trials) |
-| CV | 5-fold Stratified, ROC-AUC metric |
-| Explainability | SHAP TreeExplainer |
+2. **Confidence Thresholding for Manual Review:**
+   - Predictions with confidence $\ge 0.85$ are flagged as high-confidence automated predictions (`review_needed: false`), while predictions below $0.85$ are routed for manual teacher review (`review_needed: true`).
 
-### Pipeline 2: Doubt Triage
-
-| Step | Detail |
-|------|--------|
-| Dataset | CS1QA (9,237 Q&A pairs, 9 categories) |
-| Text Cleaning | lowercase, URLs, punctuation, stopwords, lemmatization |
-| Features | TF-IDF (5000 features, bigrams) |
-| Baseline | Logistic Regression (OVR) |
-| Final Model | LinearSVC + CalibratedClassifierCV |
-| Thresholds | 0.60, 0.70, 0.80, 0.85, 0.90 |
-| Routing | confidence ≥ threshold → Auto, else → Teacher Review |
-
----
-
-## 🔧 Engineering Practices
-
-- ✅ **Modular code** — Reusable functions across both pipelines
-- ✅ **Type hints** — All functions annotated
-- ✅ **Docstrings** — Every function documented
-- ✅ **Logging** — Module-level loggers throughout
-- ✅ **PEP 8** — Consistent code style
-- ✅ **No hardcoded values** — Central `config.py`
-- ✅ **Reproducibility** — `random_state=42` everywhere
-- ✅ **No data leakage** — Strict train/test separation
-- ✅ **sklearn Pipelines** — Preprocessing + model in single object
-- ✅ **Exception handling** — Graceful error management
-
----
-
-## 📈 Visualizations Generated
-
-| Plot | Pipeline |
-|------|----------|
-| Missing Value Heatmap | 1 |
-| Target Distribution | 1, 2 |
-| Correlation Matrix | 1 |
-| Feature Distributions | 1 |
-| Feature Importance | 1 |
-| SHAP Summary Plot | 1 |
-| SHAP Bar Plot | 1 |
-| SHAP Waterfall | 1 |
-| Confusion Matrix | 1, 2 |
-| ROC Curve | 1, 2 |
-| Precision-Recall Curve | 1, 2 |
-| Threshold vs Accuracy | 2 |
-| Threshold vs Auto-Approval Rate | 2 |
-| Confidence Distribution | 2 |
-| Error Analysis | 1, 2 |
-
----
-
-## 📝 Report
-
-See [reports/final_report.md](reports/final_report.md) for the complete professional report including:
-- Problem Statement & Methodology
-- Feature Engineering (available vs. unavailable)
-- Model Selection & Hyperparameter Tuning
-- Cross-Validation Results
-- Threshold Justification
-- Data Leakage Analysis
-- Limitations & Future Work
+3. **Urgency Modeling (Pipeline 2):**
+   - Derived heuristically from question text keywords (e.g. error/crash/deadline $\rightarrow$ HIGH, explanation/why $\rightarrow$ MEDIUM, general $\rightarrow$ LOW) combined with calibrated prediction probabilities.
 
 ---
 
@@ -230,23 +177,19 @@ See [reports/final_report.md](reports/final_report.md) for the complete professi
 
 | Package | Purpose |
 |---------|---------|
-| pandas, numpy | Data manipulation |
-| scikit-learn | ML models, preprocessing, evaluation |
-| lightgbm | Gradient boosting (Pipeline 1) |
-| optuna | Hyperparameter optimization |
-| matplotlib, seaborn | Visualization |
-| nltk | NLP text processing |
-| shap | Model explainability |
-| fastapi, uvicorn | REST API deployment |
-| joblib | Model serialization |
+| `pandas`, `numpy`, `scipy` | Data structures & numerical utilities |
+| `scikit-learn` | Preprocessing, Random Forest baseline, LinearSVC, CalibratedClassifierCV |
+| `lightgbm` | Gradient boosting for Pipeline 1 |
+| `optuna` | Hyperparameter optimization |
+| `nltk` | NLP text processing (tokenization, stop words, lemmatization) |
+| `shap` | TreeExplainer feature attribution & interpretability |
+| `fastapi`, `uvicorn`, `pydantic` | Production REST API server |
+| `gradio` | Interactive 3-tab web UI |
+| `joblib` | Model artifact serialization |
 
 ---
 
-## 📄 License
+## 📄 License & Attribution
 
-This project was built for educational assessment purposes.
-
-**Datasets**:
-- NASA KC1: PROMISE Repository (Sayyad Shirabad & Menzies, 2005)
-- CS1QA: NAACL 2022 (Yoon et al.), MIT License
-- IBM Project CodeNet: Apache 2.0 License
+Built for the KPMG AI/ML Assessment.
+- Datasets: Project CodeNet, NASA MDP, CS1QA (NAACL 2022).
