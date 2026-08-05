@@ -1,11 +1,11 @@
-# 🎓 LMS AI/ML Pipeline — Code Quality Grading & Student Doubt Triage
+# LMS AI/ML Pipeline — Code Quality Grading & Student Doubt Triage
 
 > Production-quality Machine Learning & NLP Pipeline for Learning Management Systems (LMS).  
 > Built for the **KPMG AI/ML Off-Campus Hiring Assessment**.
 
 ---
 
-## 🌐 Live Web Interfaces & API Links
+## Live Web Interfaces & API Links
 
 - **Interactive Dashboard:** `https://<your-render-url>/` *(Sleek HTML/JS Web App)*
 - **Gradio Interactive UI:** `https://<your-render-url>/gradio` *(Full 3-Tab Gradio App)*
@@ -14,7 +14,7 @@
 
 ---
 
-## 📋 Overview
+## Overview
 
 This project implements **two production-grade ML pipelines**:
 
@@ -25,7 +25,7 @@ This project implements **two production-grade ML pipelines**:
 
 ---
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 kpmg/
@@ -65,7 +65,7 @@ kpmg/
 
 ---
 
-## 🚀 Quick Start & Local Execution
+## Quick Start & Local Execution
 
 ### 1. Install Dependencies
 
@@ -95,7 +95,7 @@ uvicorn api.app:app --reload --port 8000
 
 ---
 
-## 📡 API Endpoints & Request Examples
+## API Endpoints & Request Examples
 
 ### 1. Code Quality Grading (`POST /predict-grade`)
 
@@ -159,7 +159,7 @@ uvicorn api.app:app --reload --port 8000
 
 ---
 
-## 💡 Tradeoffs & Handling Ambiguity
+## Tradeoffs & Handling Ambiguity
 
 1. **Defect Prediction as Proxy for Code Quality (Pipeline 1):**
    - **Ambiguity:** Benchmark datasets with human teacher grading rubrics are scarce in open ML literature.
@@ -173,7 +173,7 @@ uvicorn api.app:app --reload --port 8000
 
 ---
 
-## 📦 Dependencies
+## Dependencies
 
 | Package | Purpose |
 |---------|---------|
@@ -189,7 +189,7 @@ uvicorn api.app:app --reload --port 8000
 
 ---
 
-## 📄 License & Attribution
+## License & Attribution
 
 Built for the KPMG AI/ML Assessment.
 - Datasets: Project CodeNet, NASA MDP, CS1QA (NAACL 2022).

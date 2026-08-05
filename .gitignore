@@ -39,8 +39,9 @@ data/processed/*
 Project_CodeNet/
 
 # Models & Artifacts
-models/*.pkl
-models/*.json
+# Track models for production deployment
+!models/*.pkl
+!models/*.json
 
 # IDEs
 .vscode/
