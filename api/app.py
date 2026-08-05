@@ -79,13 +79,11 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event() -> None:
-    """Load all trained models on application startup."""
+    """Load trained models in background thread so Uvicorn binds port instantly."""
+    import asyncio
     models_dir = str(PROJECT_ROOT / "models")
-    logger.info(f"Loading models from {models_dir}...")
-    status = load_models(models_dir)
-    for model_name, loaded in status.items():
-        symbol = "✓" if loaded else "✗"
-        logger.info(f"  {symbol} {model_name}: {'loaded' if loaded else 'not found'}")
+    logger.info(f"Initiating background model loading from {models_dir}...")
+    asyncio.create_task(asyncio.to_thread(load_models, models_dir))
 
 
 # =============================================================================
