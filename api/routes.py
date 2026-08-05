@@ -102,7 +102,6 @@ def load_models(models_dir: str) -> Dict[str, bool]:
 
 def get_model_status() -> Dict[str, bool]:
     """Get the current status of loaded models."""
-    _ensure_models_loaded()
     return {
         "code_grading_model": "code_grading" in _models,
         "doubt_triage_model": "doubt_triage" in _models,
