@@ -3,7 +3,7 @@ services:
     name: kpmg-lms-pipeline
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn -w 1 -k uvicorn.workers.UvicornWorker api.app:app -b 0.0.0.0:$PORT --timeout 120
+    startCommand: python main.py
     envVars:
       - key: GRADIO_ANALYTICS_ENABLED
         value: "False"
