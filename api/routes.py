@@ -81,20 +81,21 @@ def load_models(models_dir: str) -> Dict[str, bool]:
             status[f"{name}"] = False
             logger.warning(f"{name} not found at {path}")
 
-    # Load threshold
+    # Load threshold (default to 0.70 if missing)
     if threshold_path.exists():
         try:
             with open(threshold_path, "r") as f:
                 data = json.load(f)
-            _models["threshold"] = data.get("best_threshold", 0.7)
+            _models["threshold"] = data.get("best_threshold", 0.70)
             status["threshold"] = True
         except Exception as e:
-            _models["threshold"] = 0.7
+            _models["threshold"] = 0.70
             status["threshold"] = False
             logger.error(f"Failed to load threshold: {e}")
     else:
-        _models["threshold"] = 0.7
-        status["threshold"] = False
+        _models["threshold"] = 0.70
+        status["threshold"] = True  # Use default 0.70 threshold fallback
+        logger.info(f"Threshold file not found at {threshold_path}. Using default 0.70 fallback threshold.")
 
     return status
 
@@ -116,13 +117,13 @@ def get_model_status() -> Dict[str, bool]:
 
 def predict_grade(request: CodeGradingRequest) -> CodeGradingResponse:
     """
-    Predict code quality grade from software metrics.
+    Predict code quality grade from software defect metrics.
 
     Args:
         request: CodeGradingRequest with software metrics.
 
     Returns:
-        CodeGradingResponse with prediction, confidence, and feature values.
+        CodeGradingResponse with quality, prediction, confidence, defect probability, review flag, and feature values.
 
     Raises:
         RuntimeError: If the code grading model is not loaded.
@@ -137,7 +138,6 @@ def predict_grade(request: CodeGradingRequest) -> CodeGradingResponse:
 
     # Build feature array in the same order as training
     features = _build_code_features(request)
-    feature_names = list(features.keys())
     X = np.array([list(features.values())])
 
     # Predict
@@ -147,16 +147,20 @@ def predict_grade(request: CodeGradingRequest) -> CodeGradingResponse:
     defect_prob = float(probabilities[1]) if len(probabilities) > 1 else float(probabilities[0])
 
     label = "Defect" if prediction == 1 else "No Defect"
+    quality = "Defective" if prediction == 1 else "Good"
+    review_needed = bool(confidence < 0.85)
 
     logger.info(
-        f"Code grading prediction: {label} "
-        f"(confidence={confidence:.4f}, defect_prob={defect_prob:.4f})"
+        f"Code grading prediction: quality={quality}, label={label} "
+        f"(confidence={confidence:.4f}, defect_prob={defect_prob:.4f}, review_needed={review_needed})"
     )
 
     return CodeGradingResponse(
+        quality=quality,
         prediction=label,
         confidence=confidence,
         defect_probability=defect_prob,
+        review_needed=review_needed,
         feature_values=features,
     )
 
@@ -165,59 +169,39 @@ def _build_code_features(request: CodeGradingRequest) -> Dict[str, float]:
     """
     Build the feature dictionary from a CodeGradingRequest.
 
-    Includes derived features (Code_Size, Complexity_Ratio, etc.)
+    Includes derived features (Complexity_per_LOC, Branch_Density, Fan_Ratio, etc.)
     to match the training feature set.
-
-    Args:
-        request: The incoming code grading request.
-
-    Returns:
-        Dictionary of feature name → value.
     """
     from src.utils import safe_divide
 
-    # Raw features
+    loc = float(request.loc)
+    cyclo = float(request.cyclo if request.cyclo is not None else (request.v_g or 1.0))
+    length = float(request.length if request.length is not None else (request.n or 1.0))
+    volume = float(request.volume if request.volume is not None else (request.v or 1.0))
+    difficulty = float(request.difficulty if request.difficulty is not None else (request.d or 1.0))
+    int_fan_in = float(request.int_fan_in)
+    int_fan_out = float(request.int_fan_out)
+    num_operators = float(request.num_operators if request.num_operators is not None else (request.total_Op or 1.0))
+    num_operands = float(request.num_operands if request.num_operands is not None else (request.total_Opnd or 1.0))
+    branch_count = float(request.branch_count if request.branch_count is not None else (request.branchCount or 1.0))
+
     features: Dict[str, float] = {
-        "loc": request.loc,
-        "v(g)": request.v_g,
-        "ev(g)": request.ev_g,
-        "iv(g)": request.iv_g,
-        "n": request.n,
-        "v": request.v,
-        "l": request.l,
-        "d": request.d,
-        "i": request.i,
-        "e": request.e,
-        "b": request.b,
-        "t": request.t,
-        "lOCode": request.lOCode,
-        "lOComment": request.lOComment,
-        "lOBlank": request.lOBlank,
-        "uniq_Op": request.uniq_Op,
-        "uniq_Opnd": request.uniq_Opnd,
-        "total_Op": request.total_Op,
-        "total_Opnd": request.total_Opnd,
-        "branchCount": request.branchCount,
+        "LOC": loc,
+        "CYCLO": cyclo,
+        "LENGTH": length,
+        "VOLUME": volume,
+        "DIFFICULTY": difficulty,
+        "INT_FAN_IN": int_fan_in,
+        "INT_FAN_OUT": int_fan_out,
+        "NUM_OPERATORS": num_operators,
+        "NUM_OPERANDS": num_operands,
+        "BRANCH_COUNT": branch_count,
+        "Complexity_per_LOC": safe_divide(cyclo, loc),
+        "Branch_Density": safe_divide(branch_count, loc),
+        "Fan_Ratio": safe_divide(int_fan_in, int_fan_out),
+        "Complexity_x_LOC": cyclo * loc,
+        "Halstead_per_LOC": safe_divide(volume, loc),
     }
-
-    # Derived features
-    features["Code_Size"] = (
-        request.loc + request.lOComment + request.lOBlank
-    )
-    features["Complexity_Ratio"] = safe_divide(request.v_g, request.loc)
-
-    # Maintainability Index
-    v_val = max(request.v, 1)
-    loc_val = max(request.loc, 1)
-    mi = 171 - 5.2 * np.log(v_val) - 0.23 * request.v_g - 16.2 * np.log(loc_val)
-    features["Maintainability_Index"] = max(0, min(100, mi))
-
-    features["Comment_Density"] = safe_divide(
-        request.lOComment,
-        request.loc + request.lOComment,
-    )
-    features["Bug_Density"] = safe_divide(request.b, request.loc)
-    features["Effort_Density"] = safe_divide(request.e, request.loc)
 
     return features
 

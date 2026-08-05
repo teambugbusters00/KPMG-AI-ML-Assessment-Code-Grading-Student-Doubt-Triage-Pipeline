@@ -30,24 +30,23 @@ load_models(str(PROJECT_ROOT / "models"))
 # =============================================================================
 
 def gradio_predict_grade(
-    loc: float, v_g: float, ev_g: float, iv_g: float,
-    n: float, v: float, l: float, d: float, i: float, e: float, b: float, t: float,
-    lOCode: float, lOComment: float, lOBlank: float,
-    uniq_Op: float, uniq_Opnd: float, total_Op: float, total_Opnd: float, branchCount: float
-) -> Tuple[str, float, float, Dict[str, float]]:
+    loc: float, cyclo: float, length: float, volume: float, difficulty: float,
+    int_fan_in: float, int_fan_out: float, num_operators: float, num_operands: float, branch_count: float
+) -> Tuple[str, str, float, float, str, Dict[str, float]]:
     """Handler for Pipeline 1 Code Quality Grading Gradio tab."""
     req = CodeGradingRequest(
-        loc=loc, v_g=v_g, ev_g=ev_g, iv_g=iv_g,
-        n=n, v=v, l=l, d=d, i=i, e=e, b=b, t=t,
-        lOCode=lOCode, lOComment=lOComment, lOBlank=lOBlank,
-        uniq_Op=uniq_Op, uniq_Opnd=uniq_Opnd, total_Op=total_Op, total_Opnd=total_Opnd,
-        branchCount=branchCount
+        loc=loc, cyclo=cyclo, length=length, volume=volume, difficulty=difficulty,
+        int_fan_in=int_fan_in, int_fan_out=int_fan_out,
+        num_operators=num_operators, num_operands=num_operands, branch_count=branch_count
     )
     res = predict_grade(req)
+    review_str = "Yes (Confidence < 85%)" if res.review_needed else "No (High Quality Prediction)"
     return (
-        f"Result: {res.prediction}",
-        round(res.defect_probability * 100, 2),
+        f"Quality: {res.quality}",
+        f"Defect Label: {res.prediction}",
         round(res.confidence * 100, 2),
+        round(res.defect_probability * 100, 2),
+        review_str,
         res.feature_values
     )
 
@@ -77,9 +76,9 @@ def gradio_health_check() -> Dict[str, Any]:
     return get_model_status()
 
 
-# Preset values for Code Grading
-CLEAN_CODE_PRESET = [15, 2, 1, 1, 40, 180, 0.15, 6, 30, 1080, 0.06, 60, 12, 4, 2, 8, 8, 24, 16, 3]
-DEFECTIVE_CODE_PRESET = [280, 42, 25, 18, 1200, 8500, 0.01, 85, 100, 722500, 2.8, 40138, 240, 5, 35, 45, 80, 700, 500, 83]
+# Preset values for Code Grading (SoftwareDefectDataset)
+CLEAN_CODE_PRESET = [0.08, 0.43, 0.18, 0.16, 0.0, 0.0, 0.22, 0.14, 0.81, 0.64]
+DEFECTIVE_CODE_PRESET = [0.89, 0.0, 0.96, 0.75, 0.67, 1.0, 0.0, 0.11, 0.02, 0.0]
 
 
 # =============================================================================
@@ -120,64 +119,49 @@ def create_gradio_app() -> gr.Blocks:
         with gr.Tabs():
             # TAB 1: Code Quality Grading
             with gr.TabItem("Pipeline 1: Code Quality Grading"):
-                gr.Markdown("### Code Software Metrics & Defect Prediction")
+                gr.Markdown("### Code Software Metrics & Defect Prediction (SoftwareDefectDataset)")
                 
                 with gr.Row():
                     with gr.Column(scale=2):
-                        gr.Markdown("#### McCabe & Halstead Input Metrics")
+                        gr.Markdown("#### Input Software Metrics")
                         with gr.Row():
                             btn_clean = gr.Button("Load Clean Code Sample", variant="secondary", size="sm")
                             btn_defect = gr.Button("Load Defective Sample", variant="secondary", size="sm")
 
                         with gr.Row():
-                            loc = gr.Number(label="LOC (loc)", value=25)
-                            v_g = gr.Number(label="Cyclomatic v(g)", value=4)
-                            ev_g = gr.Number(label="Essential ev(g)", value=1)
-                            iv_g = gr.Number(label="Design iv(g)", value=3)
+                            loc = gr.Number(label="LOC (Lines of Code)", value=0.08)
+                            cyclo = gr.Number(label="CYCLO (Cyclomatic)", value=0.43)
+                            length = gr.Number(label="LENGTH (Halstead Length)", value=0.18)
+                            volume = gr.Number(label="VOLUME (Halstead Volume)", value=0.16)
 
                         with gr.Row():
-                            n = gr.Number(label="Length (n)", value=75)
-                            v = gr.Number(label="Volume (v)", value=350)
-                            l = gr.Number(label="Level (l)", value=0.08)
-                            d = gr.Number(label="Difficulty (d)", value=12)
+                            difficulty = gr.Number(label="DIFFICULTY (Difficulty)", value=0.0)
+                            int_fan_in = gr.Number(label="INT_FAN_IN (Fan In)", value=0.0)
+                            int_fan_out = gr.Number(label="INT_FAN_OUT (Fan Out)", value=0.22)
 
                         with gr.Row():
-                            i = gr.Number(label="Intelligence (i)", value=29)
-                            e = gr.Number(label="Effort (e)", value=4200)
-                            b = gr.Number(label="Bugs Est. (b)", value=0.11)
-                            t = gr.Number(label="Time Est. (t)", value=233)
-
-                        with gr.Row():
-                            lOCode = gr.Number(label="Code Lines", value=20)
-                            lOComment = gr.Number(label="Comment Lines", value=3)
-                            lOBlank = gr.Number(label="Blank Lines", value=2)
-
-                        with gr.Row():
-                            uniq_Op = gr.Number(label="Uniq Operators", value=12)
-                            uniq_Opnd = gr.Number(label="Uniq Operands", value=10)
-                            total_Op = gr.Number(label="Total Operators", value=45)
-                            total_Opnd = gr.Number(label="Total Operands", value=30)
-                            branchCount = gr.Number(label="Branch Count", value=7)
+                            num_operators = gr.Number(label="NUM_OPERATORS", value=0.14)
+                            num_operands = gr.Number(label="NUM_OPERANDS", value=0.81)
+                            branch_count = gr.Number(label="BRANCH_COUNT", value=0.64)
 
                         btn_predict_grade = gr.Button("Run Code Quality Prediction", variant="primary")
 
                     with gr.Column(scale=1):
                         gr.Markdown("#### Prediction Output")
-                        grade_label = gr.Textbox(label="Assessment Result", interactive=False)
-                        defect_prob = gr.Number(label="Defect Probability (%)", interactive=False)
+                        quality_label = gr.Textbox(label="Submission Quality", interactive=False)
+                        grade_label = gr.Textbox(label="Defect Assessment", interactive=False)
                         grade_conf = gr.Number(label="Model Confidence (%)", interactive=False)
+                        defect_prob = gr.Number(label="Defect Probability (%)", interactive=False)
+                        review_flag = gr.Textbox(label="Needs Manual Review (< 85% conf)", interactive=False)
                         derived_features = gr.JSON(label="Engineered Feature Breakdown")
 
-                all_inputs = [loc, v_g, ev_g, iv_g, n, v, l, d, i, e, b, t, lOCode, lOComment, lOBlank, uniq_Op, uniq_Opnd, total_Op, total_Opnd, branchCount]
+                all_inputs = [loc, cyclo, length, volume, difficulty, int_fan_in, int_fan_out, num_operators, num_operands, branch_count]
                 
                 btn_predict_grade.click(
                     fn=gradio_predict_grade,
                     inputs=all_inputs,
-                    outputs=[grade_label, defect_prob, grade_conf, derived_features]
+                    outputs=[quality_label, grade_label, grade_conf, defect_prob, review_flag, derived_features]
                 )
-
-                def set_preset(preset_list):
-                    return preset_list
 
                 btn_clean.click(fn=lambda: CLEAN_CODE_PRESET, outputs=all_inputs)
                 btn_defect.click(fn=lambda: DEFECTIVE_CODE_PRESET, outputs=all_inputs)

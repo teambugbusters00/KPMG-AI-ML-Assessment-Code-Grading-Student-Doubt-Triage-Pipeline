@@ -35,7 +35,15 @@ for _dir in [RAW_DATA_DIR, PROCESSED_DATA_DIR, MODELS_DIR, FIGURES_DIR]:
 # =============================================================================
 # Dataset Configuration
 # =============================================================================
-# NASA KC1 (OpenML ID: 1067)
+# Software Defect Dataset for Code Grading (Pipeline 1)
+SOFTWARE_DEFECT_DATASET_PATH: Path = PROJECT_ROOT / "Project_CodeNet" / "assets" / "SoftwareDefectDataset.csv"
+SOFTWARE_DEFECT_TARGET_COLUMN: str = "DEFECT_LABEL"
+SOFTWARE_DEFECT_FEATURE_COLUMNS: List[str] = [
+    "LOC", "CYCLO", "LENGTH", "VOLUME", "DIFFICULTY",
+    "INT_FAN_IN", "INT_FAN_OUT", "NUM_OPERATORS", "NUM_OPERANDS", "BRANCH_COUNT"
+]
+
+# Legacy / NASA KC1 (OpenML ID: 1067)
 NASA_DATASET_ID: int = 1067
 NASA_DATASET_NAME: str = "kc1"
 NASA_TARGET_COLUMN: str = "defects"

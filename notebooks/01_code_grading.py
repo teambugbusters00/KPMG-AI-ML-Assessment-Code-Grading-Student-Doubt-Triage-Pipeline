@@ -75,7 +75,7 @@ from src.config import (
     CODE_GRADING_SCALER_PATH,
 )
 from src.utils import set_global_seed, print_section_header
-from src.data_loader import download_nasa_dataset, load_nasa_dataset
+from src.data_loader import load_software_defect_dataset
 from src.preprocessing import (
     detect_duplicates,
     remove_duplicates,
@@ -87,9 +87,8 @@ from src.preprocessing import (
     check_class_imbalance,
 )
 from src.feature_engineering import (
-    engineer_features,
+    engineer_software_defect_features,
     get_feature_names,
-    get_feature_availability_report,
 )
 from src.model_training import (
     train_baseline_rf,
@@ -122,27 +121,24 @@ print_section_header("Pipeline 1: ML-Based Code Grading")
 # %% [markdown]
 # ## 3. Dataset Description
 #
-# **NASA KC1 Dataset** (PROMISE Repository, OpenML ID: 1067)
+# **Software Defect Dataset** (`Project_CodeNet/assets/SoftwareDefectDataset.csv`)
 #
 # | Property | Value |
 # |----------|-------|
-# | Source | NASA Metrics Data Program |
-# | Domain | Storage Management Software |
+# | Source | Software Defect Metrics |
 # | Granularity | Module-level metrics |
-# | Features | 21 software metrics |
-# | Target | `defects` (boolean: true/false) |
+# | Features | 10 software metrics (LOC, CYCLO, LENGTH, VOLUME, DIFFICULTY, INT_FAN_IN, INT_FAN_OUT, NUM_OPERATORS, NUM_OPERANDS, BRANCH_COUNT) |
+# | Target | `DEFECT_LABEL` (0 = Good Quality / No Defect, 1 = Defective / Low Quality) |
 #
-# **Feature Categories**:
-# - **McCabe Metrics**: Cyclomatic complexity (`v(g)`), essential complexity
-#   (`ev(g)`), design complexity (`iv(g)`), line count (`loc`)
-# - **Halstead Metrics**: Volume, difficulty, effort, bug estimate, time
-#   estimate, program length, unique/total operators and operands
-# - **Size Metrics**: Lines of code, comments, blanks, branch count
+# **Defect Proxy Justification**:
+# Human code quality scores are subjective and scarce in public ML benchmarks.
+# Software defect prediction targets serve as an objective proxy for code submission quality:
+# modules with fewer defect metrics reflect higher software engineering quality.
 
 # %%
 # === Load Dataset ===
-print_section_header("Loading NASA KC1 Dataset")
-df, target_col = load_nasa_dataset()
+print_section_header("Loading Software Defect Dataset")
+df, target_col = load_software_defect_dataset()
 
 print(f"Dataset shape: {df.shape}")
 print(f"Target column: {target_col}")
@@ -252,19 +248,12 @@ print(f"\nNote: Outliers are NOT removed — tree-based models handle them well.
 # %%
 print_section_header("6. Feature Engineering")
 
-# Print feature availability report
-report = get_feature_availability_report()
-print(report)
-
 # Engineer derived features
-df = engineer_features(df)
+df = engineer_software_defect_features(df)
 print(f"\nDataset shape after feature engineering: {df.shape}")
-print(f"New columns: {[c for c in df.columns if c not in feature_cols + [target_col]]}")
 
-# %%
 # Display engineered features statistics
-engineered_cols = ["Code_Size", "Complexity_Ratio", "Maintainability_Index",
-                   "Comment_Density", "Bug_Density", "Effort_Density"]
+engineered_cols = ["Complexity_per_LOC", "Branch_Density", "Fan_Ratio", "Complexity_x_LOC", "Halstead_per_LOC"]
 available_eng = [c for c in engineered_cols if c in df.columns]
 if available_eng:
     print("\nEngineered features statistics:")

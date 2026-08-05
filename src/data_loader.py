@@ -26,12 +26,49 @@ from src.config import (
     NASA_DATASET_NAME,
     NASA_TARGET_COLUMN,
     RAW_DATA_DIR,
+    SOFTWARE_DEFECT_DATASET_PATH,
+    SOFTWARE_DEFECT_TARGET_COLUMN,
     URGENCY_HIGH_KEYWORDS,
     URGENCY_MEDIUM_KEYWORDS,
 )
 from src.utils import setup_logger
 
 logger = setup_logger(__name__)
+
+
+# =============================================================================
+# Pipeline 1: Software Defect Dataset for Code Quality Grading
+# =============================================================================
+
+
+def load_software_defect_dataset(filepath: Optional[Path] = None) -> Tuple[pd.DataFrame, str]:
+    """
+    Load the SoftwareDefectDataset.csv for Code Quality Grading (Pipeline 1).
+
+    Args:
+        filepath: Path to SoftwareDefectDataset.csv. Defaults to SOFTWARE_DEFECT_DATASET_PATH.
+
+    Returns:
+        Tuple of (DataFrame, target_column_name).
+    """
+    csv_path = filepath or SOFTWARE_DEFECT_DATASET_PATH
+    if not csv_path.exists():
+        logger.error(f"Software defect dataset not found at {csv_path}")
+        raise FileNotFoundError(f"Software defect dataset not found at {csv_path}")
+
+    logger.info(f"Loading Software Defect Dataset from {csv_path}")
+    df = pd.read_csv(csv_path)
+
+    target_col = SOFTWARE_DEFECT_TARGET_COLUMN
+    if target_col in df.columns:
+        df[target_col] = df[target_col].astype(int)
+
+    logger.info(
+        f"Software Defect Dataset loaded: {df.shape[0]} samples, {df.shape[1]} columns. "
+        f"Target distribution: {df[target_col].value_counts().to_dict()}"
+    )
+
+    return df, target_col
 
 
 # =============================================================================

@@ -100,6 +100,41 @@ def get_feature_availability_report() -> str:
     return report
 
 
+def engineer_software_defect_features(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Engineer software metrics for SoftwareDefectDataset.csv:
+      - Complexity_per_LOC = CYCLO / LOC
+      - Branch_Density = BRANCH_COUNT / LOC
+      - Fan_Ratio = INT_FAN_IN / INT_FAN_OUT
+      - Complexity_x_LOC = CYCLO * LOC
+      - Halstead_per_LOC = VOLUME / LOC
+
+    Args:
+        df: Input DataFrame with SoftwareDefectDataset columns.
+
+    Returns:
+        DataFrame with new engineered features added.
+    """
+    df_eng = df.copy()
+
+    loc = df_eng["LOC"] if "LOC" in df_eng.columns else df_eng.get("loc", 1.0)
+    cyclo = df_eng["CYCLO"] if "CYCLO" in df_eng.columns else df_eng.get("v(g)", 0.0)
+    volume = df_eng["VOLUME"] if "VOLUME" in df_eng.columns else df_eng.get("v", 0.0)
+    branch = df_eng["BRANCH_COUNT"] if "BRANCH_COUNT" in df_eng.columns else df_eng.get("branchCount", 0.0)
+    fan_in = df_eng.get("INT_FAN_IN", 0.0)
+    fan_out = df_eng.get("INT_FAN_OUT", 0.0)
+
+    # Derived features using safe division
+    df_eng["Complexity_per_LOC"] = df_eng.apply(lambda r: safe_divide(r.get("CYCLO", r.get("v(g)", 0)), r.get("LOC", r.get("loc", 1))), axis=1)
+    df_eng["Branch_Density"] = df_eng.apply(lambda r: safe_divide(r.get("BRANCH_COUNT", r.get("branchCount", 0)), r.get("LOC", r.get("loc", 1))), axis=1)
+    df_eng["Fan_Ratio"] = df_eng.apply(lambda r: safe_divide(r.get("INT_FAN_IN", 0), r.get("INT_FAN_OUT", 1)), axis=1)
+    df_eng["Complexity_x_LOC"] = cyclo * loc
+    df_eng["Halstead_per_LOC"] = df_eng.apply(lambda r: safe_divide(r.get("VOLUME", r.get("v", 0)), r.get("LOC", r.get("loc", 1))), axis=1)
+
+    logger.info("Engineered Software Defect features: Complexity_per_LOC, Branch_Density, Fan_Ratio, Complexity_x_LOC, Halstead_per_LOC")
+    return df_eng
+
+
 def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     """
     Engineer all available software metrics from the NASA KC1 dataset.
