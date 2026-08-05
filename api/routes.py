@@ -273,7 +273,7 @@ def predict_doubt(request: DoubtTriageRequest) -> DoubtTriageResponse:
 
     # All class probabilities
     all_probs = {
-        label_encoder.inverse_transform([i])[0]: float(p)
+        str(label_encoder.inverse_transform([i])[0]): float(p)
         for i, p in enumerate(probabilities)
     }
 
