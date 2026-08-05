@@ -112,22 +112,22 @@ def create_gradio_app() -> gr.Blocks:
         with gr.Row():
             gr.HTML("""
                 <div class="header-box">
-                    <h1>🎓 LMS AI/ML Pipeline Dashboard</h1>
+                    <h1>LMS AI/ML Pipeline Dashboard</h1>
                     <p>Interactive Code Quality Grading & Student Doubt Triage System</p>
                 </div>
             """)
 
         with gr.Tabs():
             # TAB 1: Code Quality Grading
-            with gr.TabItem("📊 Pipeline 1: Code Quality Grading"):
+            with gr.TabItem("Pipeline 1: Code Quality Grading"):
                 gr.Markdown("### Code Software Metrics & Defect Prediction")
                 
                 with gr.Row():
                     with gr.Column(scale=2):
                         gr.Markdown("#### McCabe & Halstead Input Metrics")
                         with gr.Row():
-                            btn_clean = gr.Button("⚡ Load Clean Code Sample", variant="secondary", size="sm")
-                            btn_defect = gr.Button("⚠️ Load Defective Sample", variant="secondary", size="sm")
+                            btn_clean = gr.Button("Load Clean Code Sample", variant="secondary", size="sm")
+                            btn_defect = gr.Button("Load Defective Sample", variant="secondary", size="sm")
 
                         with gr.Row():
                             loc = gr.Number(label="LOC (loc)", value=25)
@@ -159,7 +159,7 @@ def create_gradio_app() -> gr.Blocks:
                             total_Opnd = gr.Number(label="Total Operands", value=30)
                             branchCount = gr.Number(label="Branch Count", value=7)
 
-                        btn_predict_grade = gr.Button("🔍 Run Code Quality Prediction", variant="primary")
+                        btn_predict_grade = gr.Button("Run Code Quality Prediction", variant="primary")
 
                     with gr.Column(scale=1):
                         gr.Markdown("#### Prediction Output")
@@ -183,7 +183,7 @@ def create_gradio_app() -> gr.Blocks:
                 btn_defect.click(fn=lambda: DEFECTIVE_CODE_PRESET, outputs=all_inputs)
 
             # TAB 2: Student Doubt Triage
-            with gr.TabItem("🤖 Pipeline 2: Student Doubt Triage"):
+            with gr.TabItem("Pipeline 2: Student Doubt Triage"):
                 gr.Markdown("### Question NLP Classification & Urgency Routing")
 
                 with gr.Row():
@@ -194,7 +194,7 @@ def create_gradio_app() -> gr.Blocks:
                             lines=4,
                             value="My code throws NullPointerException when calling array element inside nested loop in Java"
                         )
-                        btn_predict_doubt = gr.Button("⚡ Classify Question & Route", variant="primary")
+                        btn_predict_doubt = gr.Button("Classify Question & Route", variant="primary")
 
                         gr.Examples(
                             examples=[
@@ -222,9 +222,9 @@ def create_gradio_app() -> gr.Blocks:
                 )
 
             # TAB 3: System Health
-            with gr.TabItem("⚙️ System Status & Models"):
+            with gr.TabItem("System Status & Models"):
                 gr.Markdown("### Status of Saved Model Artifacts")
-                btn_status = gr.Button("↻ Check Model Status")
+                btn_status = gr.Button("Refresh Model Status")
                 status_json = gr.JSON(label="Loaded Models", value=get_model_status())
                 btn_status.click(fn=gradio_health_check, outputs=[status_json])
 
