@@ -101,6 +101,12 @@ async def serve_dashboard() -> HTMLResponse:
     return HTMLResponse(content="<h1>LMS ML Pipeline API</h1><p>Visit <a href='/docs'>/docs</a> for API documentation.</p>")
 
 
+@app.get("/hybridaction/zybTrackerStatisticsAction", include_in_schema=False)
+async def suppress_browser_tracker():
+    """Silence browser extension tracker requests."""
+    return {}
+
+
 @app.get("/health", response_model=HealthResponse, tags=["System"])
 async def health_check() -> HealthResponse:
     """
