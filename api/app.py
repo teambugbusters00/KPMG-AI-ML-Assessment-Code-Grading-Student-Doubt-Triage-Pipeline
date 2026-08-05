@@ -175,10 +175,13 @@ async def api_predict_doubt(request: DoubtTriageRequest) -> DoubtTriageResponse:
 # =============================================================================
 # Mount Gradio Interface
 # =============================================================================
-import gradio as gr
-from api.gradio_app import demo as gradio_demo
-
-app = gr.mount_gradio_app(app, gradio_demo, path="/gradio")
+try:
+    import gradio as gr
+    from api.gradio_app import demo as gradio_demo
+    app = gr.mount_gradio_app(app, gradio_demo, path="/gradio")
+    logger.info("Gradio interface mounted successfully at /gradio")
+except Exception as e:
+    logger.error(f"Could not mount Gradio interface: {e}")
 
 
 # =============================================================================
