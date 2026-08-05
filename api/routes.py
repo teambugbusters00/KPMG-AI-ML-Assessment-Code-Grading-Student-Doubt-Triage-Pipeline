@@ -28,12 +28,16 @@ logger = logging.getLogger(__name__)
 # Model Registry (loaded at startup)
 # =============================================================================
 
+import threading
+
 _models: Dict[str, Any] = {}
+_models_lock = threading.Lock()
+_models_loaded_flag = False
 
 
 def load_models(models_dir: str) -> Dict[str, bool]:
     """
-    Load all saved model artifacts from the models directory.
+    Load all saved model artifacts from the models directory in a thread-safe manner.
 
     Args:
         models_dir: Path to the models directory.
@@ -41,63 +45,70 @@ def load_models(models_dir: str) -> Dict[str, bool]:
     Returns:
         Dictionary indicating which models loaded successfully.
     """
-    models_path = Path(models_dir)
-    status: Dict[str, bool] = {}
+    global _models_loaded_flag
+    with _models_lock:
+        if _models_loaded_flag and len(_models) >= 4:
+            return get_model_status()
 
-    # Pipeline 1: Code Grading
-    code_model_path = models_path / "code_grading_model.pkl"
-    if code_model_path.exists():
-        try:
-            _models["code_grading"] = joblib.load(str(code_model_path))
-            status["code_grading_model"] = True
-            logger.info(f"Loaded code grading model from {code_model_path}")
-        except Exception as e:
-            status["code_grading_model"] = False
-            logger.error(f"Failed to load code grading model: {e}")
-    else:
-        status["code_grading_model"] = False
-        logger.warning(f"Code grading model not found at {code_model_path}")
+        models_path = Path(models_dir)
+        status: Dict[str, bool] = {}
 
-    # Pipeline 2: Doubt Triage
-    doubt_model_path = models_path / "doubt_triage_model.pkl"
-    vectorizer_path = models_path / "doubt_triage_vectorizer.pkl"
-    le_path = models_path / "doubt_triage_label_encoder.pkl"
-    threshold_path = models_path / "doubt_triage_threshold.json"
-
-    for name, path in [
-        ("doubt_triage", doubt_model_path),
-        ("tfidf_vectorizer", vectorizer_path),
-        ("label_encoder", le_path),
-    ]:
-        if path.exists():
+        # Pipeline 1: Code Grading
+        code_model_path = models_path / "code_grading_model.pkl"
+        if code_model_path.exists():
             try:
-                _models[name] = joblib.load(str(path))
-                status[f"{name}"] = True
-                logger.info(f"Loaded {name} from {path}")
+                _models["code_grading"] = joblib.load(code_model_path)
+                status["code_grading_model"] = True
+                logger.info(f"Loaded code grading model from {code_model_path}")
             except Exception as e:
-                status[f"{name}"] = False
-                logger.error(f"Failed to load {name}: {e}")
-        else:
-            status[f"{name}"] = False
-            logger.warning(f"{name} not found at {path}")
+                logger.error(f"Error loading code grading model: {e}")
+                status["code_grading_model"] = False
 
-    # Load threshold (default to 0.70 if missing)
-    if threshold_path.exists():
-        try:
-            with open(threshold_path, "r") as f:
-                data = json.load(f)
-            _models["threshold"] = data.get("best_threshold", 0.70)
-            status["threshold"] = True
-        except Exception as e:
-            _models["threshold"] = 0.70
-            status["threshold"] = False
-            logger.error(f"Failed to load threshold: {e}")
-    else:
-        _models["threshold"] = 0.70
-        status["threshold"] = True  # Use default 0.70 threshold fallback
-        logger.info(f"Threshold file not found at {threshold_path}. Using default 0.70 fallback threshold.")
+        # Pipeline 2: Doubt Triage
+        doubt_model_path = models_path / "doubt_triage_model.pkl"
+        vectorizer_path = models_path / "doubt_triage_vectorizer.pkl"
+        encoder_path = models_path / "doubt_triage_label_encoder.pkl"
+        metrics_path = models_path / "doubt_triage_metrics.json"
 
-    return status
+        if doubt_model_path.exists():
+            try:
+                _models["doubt_triage"] = joblib.load(doubt_model_path)
+                status["doubt_triage"] = True
+                logger.info(f"Loaded doubt_triage from {doubt_model_path}")
+            except Exception as e:
+                logger.error(f"Error loading doubt triage model: {e}")
+                status["doubt_triage"] = False
+
+        if vectorizer_path.exists():
+            try:
+                _models["tfidf_vectorizer"] = joblib.load(vectorizer_path)
+                status["tfidf_vectorizer"] = True
+                logger.info(f"Loaded tfidf_vectorizer from {vectorizer_path}")
+            except Exception as e:
+                logger.error(f"Error loading TF-IDF vectorizer: {e}")
+                status["tfidf_vectorizer"] = False
+
+        if encoder_path.exists():
+            try:
+                _models["label_encoder"] = joblib.load(encoder_path)
+                status["label_encoder"] = True
+                logger.info(f"Loaded label_encoder from {encoder_path}")
+            except Exception as e:
+                logger.error(f"Error loading label encoder: {e}")
+                status["label_encoder"] = False
+
+        if metrics_path.exists():
+            try:
+                with open(metrics_path, "r") as f:
+                    metrics = json.load(f)
+                _models["threshold"] = metrics.get("threshold", 0.7)
+                logger.info(f"Loaded decision threshold {metrics.get('threshold')} from {metrics_path}")
+            except Exception as e:
+                logger.error(f"Error loading metrics JSON: {e}")
+                _models["threshold"] = 0.7
+
+        _models_loaded_flag = True
+        return status
 
 
 def get_model_status() -> Dict[str, bool]:
@@ -117,7 +128,7 @@ def get_model_status() -> Dict[str, bool]:
 
 def _ensure_models_loaded() -> None:
     """Ensure models are loaded from the models directory if registry is empty."""
-    if not _models:
+    if not _models_loaded_flag:
         default_dir = Path(__file__).resolve().parent.parent / "models"
         load_models(str(default_dir))
 
