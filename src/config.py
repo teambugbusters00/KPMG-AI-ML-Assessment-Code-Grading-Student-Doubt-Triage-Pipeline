@@ -115,7 +115,6 @@ LR_BASELINE_PARAMS: Dict[str, Any] = {
     "max_iter": 1000,
     "random_state": RANDOM_STATE,
     "class_weight": "balanced",
-    "multi_class": "ovr",
     "solver": "lbfgs",
 }
 

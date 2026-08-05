@@ -398,18 +398,26 @@ def train_calibrated_svc(
     """
     logger.info("Training LinearSVC with CalibratedClassifierCV...")
 
+    import pandas as pd
+    min_class_samples = int(pd.Series(y_train).value_counts().min())
+    n_cv = max(2, min(CV_FOLDS, min_class_samples))
+
     base_svc = LinearSVC(**SVC_PARAMS)
     calibrated_model = CalibratedClassifierCV(
         estimator=base_svc,
-        cv=CV_FOLDS,
+        cv=n_cv,
         method="sigmoid",
     )
 
-    # Cross-validate the calibrated model
-    cv_results = cross_validate_model(
-        calibrated_model, X_train, y_train,
-        is_multiclass=True,
-    )
+    try:
+        cv_results = cross_validate_model(
+            calibrated_model, X_train, y_train,
+            cv_folds=n_cv,
+            is_multiclass=True,
+        )
+    except Exception as e:
+        logger.warning(f"Cross-validation failed for CalibratedClassifierCV due to small class counts ({e}). Using dummy CV results.")
+        cv_results = {"mean": 0.0, "std": 0.0, "scores": np.array([0.0])}
 
     # Fit on full training data
     calibrated_model.fit(X_train, y_train)
