@@ -87,7 +87,7 @@ DEFECTIVE_CODE_PRESET = [0.89, 0.0, 0.96, 0.75, 0.67, 1.0, 0.0, 0.11, 0.02, 0.0]
 
 custom_css = """
 .gradio-container {
-    font-family: 'Inter', sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 .header-box {
     text-align: center;
