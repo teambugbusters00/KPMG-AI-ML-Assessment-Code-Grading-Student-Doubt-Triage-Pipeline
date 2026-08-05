@@ -102,6 +102,7 @@ def load_models(models_dir: str) -> Dict[str, bool]:
 
 def get_model_status() -> Dict[str, bool]:
     """Get the current status of loaded models."""
+    _ensure_models_loaded()
     return {
         "code_grading_model": "code_grading" in _models,
         "doubt_triage_model": "doubt_triage" in _models,
@@ -113,6 +114,13 @@ def get_model_status() -> Dict[str, bool]:
 # =============================================================================
 # Pipeline 1: Code Grading Prediction
 # =============================================================================
+
+
+def _ensure_models_loaded() -> None:
+    """Ensure models are loaded from the models directory if registry is empty."""
+    if not _models:
+        default_dir = Path(__file__).resolve().parent.parent / "models"
+        load_models(str(default_dir))
 
 
 def predict_grade(request: CodeGradingRequest) -> CodeGradingResponse:
@@ -128,6 +136,7 @@ def predict_grade(request: CodeGradingRequest) -> CodeGradingResponse:
     Raises:
         RuntimeError: If the code grading model is not loaded.
     """
+    _ensure_models_loaded()
     if "code_grading" not in _models:
         raise RuntimeError(
             "Code grading model not loaded. "
@@ -224,6 +233,7 @@ def predict_doubt(request: DoubtTriageRequest) -> DoubtTriageResponse:
     Raises:
         RuntimeError: If required models are not loaded.
     """
+    _ensure_models_loaded()
     required = ["doubt_triage", "tfidf_vectorizer", "label_encoder"]
     missing = [m for m in required if m not in _models]
     if missing:
