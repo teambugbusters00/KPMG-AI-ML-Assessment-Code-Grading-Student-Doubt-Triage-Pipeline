@@ -14,8 +14,12 @@ Run with:
 """
 
 import logging
+import os
 import sys
 from pathlib import Path
+
+# Disable Gradio telemetry to ensure fast startup on Render
+os.environ["GRADIO_ANALYTICS_ENABLED"] = "False"
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
