@@ -645,17 +645,6 @@
         } else {
             document.getElementById('question').value = "Where can I find the assignment submission link for module 3?";
         }
-    }
-
-    function getApiBaseUrl() {
-        const customUrl = document.getElementById('apiBaseUrlInput')?.value?.trim();
-        if (customUrl) return customUrl.replace(/\/+$/, '');
-        if (window.location.hostname.includes('vercel.app')) {
-            return 'https://kpmg-ai-ml-assessment-code-grading.onrender.com';
-        }
-        return '';
-    }
-
     async function handleGradingSubmit(e) {
         e.preventDefault();
         const payload = {
@@ -672,7 +661,7 @@
         };
 
         try {
-            const res = await fetch(getApiBaseUrl() + '/predict-grade', {
+            const res = await fetch('/predict-grade', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -711,7 +700,7 @@
         };
 
         try {
-            const res = await fetch(getApiBaseUrl() + '/predict-doubt', {
+            const res = await fetch('/predict-doubt', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -767,7 +756,7 @@
         const jsonEl = document.getElementById('healthJson');
         try {
             jsonEl.textContent = "Fetching status...";
-            const res = await fetch(getApiBaseUrl() + '/health');
+            const res = await fetch('/health');
             const data = await res.json();
             jsonEl.textContent = JSON.stringify(data, null, 2);
         } catch (err) {
