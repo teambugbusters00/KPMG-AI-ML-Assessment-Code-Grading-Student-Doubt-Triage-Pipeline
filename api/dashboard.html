@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS AI/ML Assessment & Triage Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-focus: rgba(99, 102, 241, 0.5);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-glow: rgba(99, 102, 241, 0.25);
+            --secondary: #8b5cf6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-amber: #f59e0b;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.12) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: var(--font-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(16px);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .badge-row {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #a5b4fc;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .badge.status-live {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            max-width: 700px;
+            margin: 0 auto 1.5rem auto;
+        }
+
+        .action-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-secondary);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-link:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border: none;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.95;
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        /* Navigation Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.75rem 1.25rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .tab-btn.active {
+            color: #ffffff;
+            background: var(--primary);
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        /* Tab Content Containers */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Grid Layout */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 900px) {
+            .grid-2 {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(16px);
+            border-radius: 16px;
+            padding: 1.75rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* Form elements */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 0.35rem;
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: var(--text-main);
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .metric-input label {
+            font-size: 0.75rem;
+        }
+
+        .metric-input input {
+            padding: 0.4rem 0.6rem;
+            font-size: 0.85rem;
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 0.35rem 0.75rem;
+            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-sm:hover {
+            color: var(--text-main);
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        /* Results Display */
+        .result-box {
+            display: none;
+            margin-top: 1rem;
+            padding: 1.25rem;
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-color);
+        }
+
+        .result-box.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .result-badge {
+            padding: 0.35rem 1rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .result-badge.defect {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
+        .result-badge.no-defect {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .urgency-HIGH {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
+        .urgency-MEDIUM {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fde047;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        .urgency-LOW {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .prob-bar-container {
+            margin-top: 0.75rem;
+        }
+
+        .prob-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .prob-bar-bg {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .prob-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        pre {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: #a5b4fc;
+            overflow-x: auto;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <header>
+        <div class="badge-row">
+            <span class="badge status-live">● Service Live</span>
+            <span class="badge">KPMG AI/ML Pipeline</span>
+            <span class="badge">FastAPI v1.0.0</span>
+        </div>
+        <h1>LMS Code Grading & Student Doubt Triage</h1>
+        <p>Production Machine Learning Pipeline for Automated Code Metrics Quality Grading & Student Query Triage</p>
+        <div class="action-links">
+            <a href="/gradio" target="_blank" class="btn-link btn-primary">
+                🧡 Open Gradio App (/gradio)
+            </a>
+            <a href="/docs" target="_blank" class="btn-link">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                Interactive Swagger Docs (/docs)
+            </a>
+            <a href="/redoc" target="_blank" class="btn-link">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                ReDoc Specifications (/redoc)
+            </a>
+            <a href="/health" target="_blank" class="btn-link">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                API Health Check (/health)
+            </a>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('pipeline1')">Pipeline 1: Code Quality Grading</button>
+        <button class="tab-btn" onclick="switchTab('pipeline2')">Pipeline 2: Doubt Triage</button>
+        <button class="tab-btn" onclick="switchTab('health')">System Status & Models</button>
+    </div>
+
+    <!-- TAB 1: Code Grading -->
+    <div id="pipeline1" class="tab-content active">
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Code Software Metrics</span>
+                </div>
+                <div class="preset-buttons">
+                    <button class="btn-sm" onclick="loadGradingPreset('clean')">⚡ Load Clean Code Sample</button>
+                    <button class="btn-sm" onclick="loadGradingPreset('defective')">⚠️ Load Defective Sample</button>
+                </div>
+                
+                <form id="gradingForm" onsubmit="handleGradingSubmit(event)">
+                    <div class="metrics-grid">
+                        <div class="metric-input"><label>LOC (loc)</label><input type="number" id="loc" value="25" step="any" required></div>
+                        <div class="metric-input"><label>Cyclomatic v(g)</label><input type="number" id="v_g" value="4" step="any" required></div>
+                        <div class="metric-input"><label>Essential ev(g)</label><input type="number" id="ev_g" value="1" step="any" required></div>
+                        <div class="metric-input"><label>Design iv(g)</label><input type="number" id="iv_g" value="3" step="any" required></div>
+                        <div class="metric-input"><label>Length (n)</label><input type="number" id="n" value="75" step="any" required></div>
+                        <div class="metric-input"><label>Volume (v)</label><input type="number" id="v" value="350" step="any" required></div>
+                        <div class="metric-input"><label>Level (l)</label><input type="number" id="l" value="0.08" step="any" required></div>
+                        <div class="metric-input"><label>Difficulty (d)</label><input type="number" id="d" value="12" step="any" required></div>
+                        <div class="metric-input"><label>Intelligence (i)</label><input type="number" id="i" value="29" step="any" required></div>
+                        <div class="metric-input"><label>Effort (e)</label><input type="number" id="e" value="4200" step="any" required></div>
+                        <div class="metric-input"><label>Bugs Est. (b)</label><input type="number" id="b" value="0.11" step="any" required></div>
+                        <div class="metric-input"><label>Time Est. (t)</label><input type="number" id="t" value="233" step="any" required></div>
+                        <div class="metric-input"><label>Code Lines</label><input type="number" id="lOCode" value="20" step="any" required></div>
+                        <div class="metric-input"><label>Comment Lines</label><input type="number" id="lOComment" value="3" step="any" required></div>
+                        <div class="metric-input"><label>Blank Lines</label><input type="number" id="lOBlank" value="2" step="any" required></div>
+                        <div class="metric-input"><label>Uniq Operators</label><input type="number" id="uniq_Op" value="12" step="any" required></div>
+                        <div class="metric-input"><label>Uniq Operands</label><input type="number" id="uniq_Opnd" value="10" step="any" required></div>
+                        <div class="metric-input"><label>Total Operators</label><input type="number" id="total_Op" value="45" step="any" required></div>
+                        <div class="metric-input"><label>Total Operands</label><input type="number" id="total_Opnd" value="30" step="any" required></div>
+                        <div class="metric-input"><label>Branch Count</label><input type="number" id="branchCount" value="7" step="any" required></div>
+                    </div>
+                    <button type="submit" class="btn-link btn-primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
+                        Run Code Quality Prediction
+                    </button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Prediction Results</span>
+                </div>
+                <div id="gradingPlaceholder" style="color: var(--text-muted); text-align: center; padding: 3rem 0;">
+                    Select a preset or enter metrics, then click "Run Code Quality Prediction".
+                </div>
+                <div id="gradingResult" class="result-box">
+                    <div class="result-header">
+                        <span style="font-size: 0.9rem; color: var(--text-muted);">Defect Assessment</span>
+                        <span id="gradingLabelBadge" class="result-badge no-defect">No Defect</span>
+                    </div>
+                    
+                    <div class="prob-bar-container">
+                        <div class="prob-label">
+                            <span>Defect Probability</span>
+                            <span id="defectProbText">0%</span>
+                        </div>
+                        <div class="prob-bar-bg">
+                            <div id="defectProbBar" class="prob-bar-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="prob-bar-container" style="margin-top: 1rem;">
+                        <div class="prob-label">
+                            <span>Model Confidence</span>
+                            <span id="gradingConfidenceText">0%</span>
+                        </div>
+                        <div class="prob-bar-bg">
+                            <div id="gradingConfidenceBar" class="prob-bar-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem;">
+                        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Calculated Features</span>
+                        <pre id="gradingFeaturesJson" style="margin-top: 0.5rem;"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: Doubt Triage -->
+    <div id="pipeline2" class="tab-content">
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Student Question Triage</span>
+                </div>
+                <div class="preset-buttons">
+                    <button class="btn-sm" onclick="loadDoubtPreset('code_error')">🐛 Java Error Sample</button>
+                    <button class="btn-sm" onclick="loadDoubtPreset('urgent')">🔥 Urgent Infrastructure Sample</button>
+                    <button class="btn-sm" onclick="loadDoubtPreset('general')">📚 General Question Sample</button>
+                </div>
+                <form id="doubtForm" onsubmit="handleDoubtSubmit(event)">
+                    <div class="form-group">
+                        <label for="question">Student Question Text</label>
+                        <textarea id="question" placeholder="Enter student query or issue..." required>My program throws NullPointerException when accessing array element inside loop</textarea>
+                    </div>
+                    <button type="submit" class="btn-link btn-primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
+                        Classify Question & Triage
+                    </button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Triage & Routing Decision</span>
+                </div>
+                <div id="doubtPlaceholder" style="color: var(--text-muted); text-align: center; padding: 3rem 0;">
+                    Enter a question above and click "Classify Question & Triage".
+                </div>
+                <div id="doubtResult" class="result-box">
+                    <div class="result-header">
+                        <div>
+                            <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Predicted Topic</span>
+                            <strong id="doubtTopic" style="font-size: 1.1rem; color: var(--text-main);">Java Programming</strong>
+                        </div>
+                        <span id="urgencyBadge" class="result-badge urgency-MEDIUM">MEDIUM URGENCY</span>
+                    </div>
+
+                    <div style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">Assigned Route:</span>
+                        <strong id="doubtRoute" style="color: #a5b4fc; font-size: 0.95rem; margin-left: 0.5rem;">Teacher Review</strong>
+                    </div>
+
+                    <div class="prob-bar-container">
+                        <div class="prob-label">
+                            <span>Top Prediction Confidence</span>
+                            <span id="doubtConfidenceText">0%</span>
+                        </div>
+                        <div class="prob-bar-bg">
+                            <div id="doubtConfidenceBar" class="prob-bar-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem;">
+                        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Category Probabilities</span>
+                        <div id="classProbabilitiesBars" style="margin-top: 0.75rem;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: System Status -->
+    <div id="health" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">API & Model Status</span>
+                <button class="btn-sm" onclick="checkHealth()">↻ Refresh Status</button>
+            </div>
+            <pre id="healthJson">Loading system status...</pre>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>KPMG AI/ML Assessment Pipeline • Built with FastAPI, Scikit-Learn, LightGBM & NLTK</p>
+    </div>
+</div>
+
+<script>
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        event.target.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+
+        if (tabId === 'health') {
+            checkHealth();
+        }
+    }
+
+    function loadGradingPreset(type) {
+        if (type === 'clean') {
+            document.getElementById('loc').value = 15;
+            document.getElementById('v_g').value = 2;
+            document.getElementById('ev_g').value = 1;
+            document.getElementById('iv_g').value = 1;
+            document.getElementById('n').value = 40;
+            document.getElementById('v').value = 180;
+            document.getElementById('l').value = 0.15;
+            document.getElementById('d').value = 6;
+            document.getElementById('i').value = 30;
+            document.getElementById('e').value = 1080;
+            document.getElementById('b').value = 0.06;
+            document.getElementById('t').value = 60;
+            document.getElementById('lOCode').value = 12;
+            document.getElementById('lOComment').value = 4;
+            document.getElementById('lOBlank').value = 2;
+            document.getElementById('uniq_Op').value = 8;
+            document.getElementById('uniq_Opnd').value = 8;
+            document.getElementById('total_Op').value = 24;
+            document.getElementById('total_Opnd').value = 16;
+            document.getElementById('branchCount').value = 3;
+        } else {
+            document.getElementById('loc').value = 280;
+            document.getElementById('v_g').value = 42;
+            document.getElementById('ev_g').value = 25;
+            document.getElementById('iv_g').value = 18;
+            document.getElementById('n').value = 1200;
+            document.getElementById('v').value = 8500;
+            document.getElementById('l').value = 0.01;
+            document.getElementById('d').value = 85;
+            document.getElementById('i').value = 100;
+            document.getElementById('e').value = 722500;
+            document.getElementById('b').value = 2.8;
+            document.getElementById('t').value = 40138;
+            document.getElementById('lOCode').value = 240;
+            document.getElementById('lOComment').value = 5;
+            document.getElementById('lOBlank').value = 35;
+            document.getElementById('uniq_Op').value = 45;
+            document.getElementById('uniq_Opnd').value = 80;
+            document.getElementById('total_Op').value = 700;
+            document.getElementById('total_Opnd').value = 500;
+            document.getElementById('branchCount').value = 83;
+        }
+    }
+
+    function loadDoubtPreset(type) {
+        if (type === 'code_error') {
+            document.getElementById('question').value = "My code throws NullPointerException when calling array element inside nested loop in Java";
+        } else if (type === 'urgent') {
+            document.getElementById('question').value = "URGENT: Production database connection keeps timing out during load test deadline is in 1 hour!";
+        } else {
+            document.getElementById('question').value = "Where can I find the assignment submission link for module 3?";
+        }
+    }
+
+    async function handleGradingSubmit(e) {
+        e.preventDefault();
+        const payload = {
+            loc: parseFloat(document.getElementById('loc').value),
+            v_g: parseFloat(document.getElementById('v_g').value),
+            ev_g: parseFloat(document.getElementById('ev_g').value),
+            iv_g: parseFloat(document.getElementById('iv_g').value),
+            n: parseFloat(document.getElementById('n').value),
+            v: parseFloat(document.getElementById('v').value),
+            l: parseFloat(document.getElementById('l').value),
+            d: parseFloat(document.getElementById('d').value),
+            i: parseFloat(document.getElementById('i').value),
+            e: parseFloat(document.getElementById('e').value),
+            b: parseFloat(document.getElementById('b').value),
+            t: parseFloat(document.getElementById('t').value),
+            lOCode: parseFloat(document.getElementById('lOCode').value),
+            lOComment: parseFloat(document.getElementById('lOComment').value),
+            lOBlank: parseFloat(document.getElementById('lOBlank').value),
+            uniq_Op: parseFloat(document.getElementById('uniq_Op').value),
+            uniq_Opnd: parseFloat(document.getElementById('uniq_Opnd').value),
+            total_Op: parseFloat(document.getElementById('total_Op').value),
+            total_Opnd: parseFloat(document.getElementById('total_Opnd').value),
+            branchCount: parseFloat(document.getElementById('branchCount').value)
+        };
+
+        try {
+            const res = await fetch('/predict-grade', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.detail || 'Prediction failed');
+
+            document.getElementById('gradingPlaceholder').style.display = 'none';
+            const resultBox = document.getElementById('gradingResult');
+            resultBox.classList.add('active');
+
+            const badge = document.getElementById('gradingLabelBadge');
+            badge.textContent = data.prediction;
+            badge.className = `result-badge ${data.prediction === 'Defect' ? 'defect' : 'no-defect'}`;
+
+            const defectPct = Math.round(data.defect_probability * 100);
+            document.getElementById('defectProbText').textContent = `${defectPct}%`;
+            document.getElementById('defectProbBar').style.width = `${defectPct}%`;
+
+            const confPct = Math.round(data.confidence * 100);
+            document.getElementById('gradingConfidenceText').textContent = `${confPct}%`;
+            document.getElementById('gradingConfidenceBar').style.width = `${confPct}%`;
+
+            document.getElementById('gradingFeaturesJson').textContent = JSON.stringify(data.feature_values, null, 2);
+
+        } catch (err) {
+            alert('Error: ' + err.message);
+        }
+    }
+
+    async function handleDoubtSubmit(e) {
+        e.preventDefault();
+        const payload = {
+            question: document.getElementById('question').value
+        };
+
+        try {
+            const res = await fetch('/predict-doubt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.detail || 'Prediction failed');
+
+            document.getElementById('doubtPlaceholder').style.display = 'none';
+            const resultBox = document.getElementById('doubtResult');
+            resultBox.classList.add('active');
+
+            document.getElementById('doubtTopic').textContent = data.prediction;
+            document.getElementById('doubtRoute').textContent = data.route;
+
+            const urgencyBadge = document.getElementById('urgencyBadge');
+            urgencyBadge.textContent = `${data.urgency} URGENCY`;
+            urgencyBadge.className = `result-badge urgency-${data.urgency}`;
+
+            const confPct = Math.round(data.confidence * 100);
+            document.getElementById('doubtConfidenceText').textContent = `${confPct}%`;
+            document.getElementById('doubtConfidenceBar').style.width = `${confPct}%`;
+
+            // Class probabilities breakdown
+            const barsContainer = document.getElementById('classProbabilitiesBars');
+            barsContainer.innerHTML = '';
+            if (data.all_probabilities) {
+                Object.entries(data.all_probabilities)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([cat, prob]) => {
+                        const pct = Math.round(prob * 100);
+                        const row = document.createElement('div');
+                        row.className = 'prob-bar-container';
+                        row.innerHTML = `
+                            <div class="prob-label">
+                                <span>${cat}</span>
+                                <span>${pct}%</span>
+                            </div>
+                            <div class="prob-bar-bg">
+                                <div class="prob-bar-fill" style="width: ${pct}%;"></div>
+                            </div>
+                        `;
+                        barsContainer.appendChild(row);
+                    });
+            }
+
+        } catch (err) {
+            alert('Error: ' + err.message);
+        }
+    }
+
+    async function checkHealth() {
+        const jsonEl = document.getElementById('healthJson');
+        try {
+            jsonEl.textContent = "Fetching status...";
+            const res = await fetch('/health');
+            const data = await res.json();
+            jsonEl.textContent = JSON.stringify(data, null, 2);
+        } catch (err) {
+            jsonEl.textContent = "Error fetching health status: " + err.message;
+        }
+    }
+</script>
+
+</body>
+</html>

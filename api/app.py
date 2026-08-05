@@ -18,6 +18,7 @@ import sys
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 # Add project root to path
@@ -87,6 +88,15 @@ async def startup_event() -> None:
 # Endpoints
 # =============================================================================
 
+@app.get("/", response_class=HTMLResponse, tags=["Dashboard"], include_in_schema=False)
+async def serve_dashboard() -> HTMLResponse:
+    """Serve interactive web dashboard on root path."""
+    html_path = PROJECT_ROOT / "api" / "dashboard.html"
+    if html_path.exists():
+        return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>LMS ML Pipeline API</h1><p>Visit <a href='/docs'>/docs</a> for API documentation.</p>")
+
+
 @app.get("/health", response_model=HealthResponse, tags=["System"])
 async def health_check() -> HealthResponse:
     """
@@ -150,6 +160,15 @@ async def api_predict_doubt(request: DoubtTriageRequest) -> DoubtTriageResponse:
     except Exception as e:
         logger.error(f"Prediction error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
+
+
+# =============================================================================
+# Mount Gradio Interface
+# =============================================================================
+import gradio as gr
+from api.gradio_app import demo as gradio_demo
+
+app = gr.mount_gradio_app(app, gradio_demo, path="/gradio")
 
 
 # =============================================================================

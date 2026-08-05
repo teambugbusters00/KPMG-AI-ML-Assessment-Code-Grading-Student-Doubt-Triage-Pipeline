@@ -29,6 +29,7 @@ fastapi>=0.100.0
 uvicorn>=0.23.0
 gunicorn>=21.0.0
 pydantic>=2.0.0
+gradio>=4.0.0
 
 # Data Loading
 scipy>=1.10.0
