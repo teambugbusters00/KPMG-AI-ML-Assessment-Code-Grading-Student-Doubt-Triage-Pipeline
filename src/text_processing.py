@@ -36,14 +36,16 @@ def _ensure_nltk_resources() -> None:
     if _NLTK_INITIALIZED:
         return
 
-    import nltk
-    resources = ["punkt", "stopwords", "wordnet", "punkt_tab"]
-    for resource in resources:
-        try:
-            nltk.data.find(f"corpora/{resource}" if resource in ["stopwords", "wordnet"]
-                           else f"tokenizers/{resource}")
-        except LookupError:
-            nltk.download(resource, quiet=True)
+    try:
+        import nltk
+        resources = ["stopwords", "wordnet"]
+        for resource in resources:
+            try:
+                nltk.data.find(f"corpora/{resource}")
+            except Exception:
+                nltk.download(resource, quiet=True)
+    except Exception as e:
+        logger.warning(f"Skipping NLTK download: {e}")
 
     _NLTK_INITIALIZED = True
 
@@ -70,12 +72,8 @@ def clean_text(text: str) -> str:
     Returns:
         Cleaned text string.
     """
-    _ensure_nltk_resources()
-    from nltk.corpus import stopwords
-    from nltk.stem import WordNetLemmatizer
-
-    stop_words = set(stopwords.words("english"))
-    lemmatizer = WordNetLemmatizer()
+    if not isinstance(text, str) or not text.strip():
+        return ""
 
     # Step 1: Lowercase
     text = text.lower()
@@ -86,12 +84,17 @@ def clean_text(text: str) -> str:
     # Step 3: Remove punctuation (keep spaces)
     text = text.translate(str.maketrans("", "", string.punctuation))
 
-    # Step 4: Tokenize and remove stopwords
-    tokens = text.split()
-    tokens = [t for t in tokens if t not in stop_words and len(t) > 1]
-
-    # Step 5: Lemmatization
-    tokens = [lemmatizer.lemmatize(t) for t in tokens]
+    # Step 4 & 5: Stopwords & Lemmatization with robust fallback
+    try:
+        _ensure_nltk_resources()
+        from nltk.corpus import stopwords
+        from nltk.stem import WordNetLemmatizer
+        stop_words = set(stopwords.words("english"))
+        lemmatizer = WordNetLemmatizer()
+        tokens = text.split()
+        tokens = [lemmatizer.lemmatize(t) for t in tokens if t not in stop_words and len(t) > 1]
+    except Exception:
+        tokens = [t for t in text.split() if len(t) > 1]
 
     return " ".join(tokens)
 
