@@ -101,7 +101,7 @@ async def startup_event() -> None:
 # Endpoints
 # =============================================================================
 
-@app.get("/", response_class=HTMLResponse, tags=["Dashboard"], include_in_schema=False)
+@app.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse, tags=["Dashboard"], include_in_schema=False)
 async def serve_dashboard() -> HTMLResponse:
     """Serve interactive web dashboard on root path."""
     html_path = PROJECT_ROOT / "api" / "dashboard.html"
