@@ -216,27 +216,27 @@ def create_gradio_app() -> gr.Blocks:
                 ---
 
                 ### 🛠️ Pipeline 1: Code Quality Grading
-                - **Dataset Built:** NASA KC1 Software Defect Dataset (2,109 software modules).
+                - **Dataset Built:** NASA KC1 Software Defect Dataset (1,000+ software modules).
                 - **Raw Features:** LOC, CYCLO, LENGTH, VOLUME, DIFFICULTY, INT_FAN_IN, INT_FAN_OUT, NUM_OPERATORS, NUM_OPERANDS, BRANCH_COUNT.
                 - **Engineered Derived Features:** `Complexity_per_LOC`, `Branch_Density`, `Fan_Ratio`, `Complexity_x_LOC`, `Halstead_per_LOC`.
-                - **Model Trained:** HistGradientBoosting + Random Forest Baseline.
-                - **Current Model Scores (NASA KC1 Dataset):**
-                  - **Test Accuracy:** `86.73%`
-                  - **Test ROC-AUC:** `0.7991`
-                  - **Precision:** `63.64%`
-                  - **Recall:** `32.31%`
-                  - **F1-Score:** `42.86%`
+                - **Model Trained:** LightGBM Classifier (Optuna tuned) + Random Forest Baseline.
+                - **Current Model Scores:**
+                  - **Test Accuracy:** `53.50%`
+                  - **Test ROC-AUC:** `0.4815`
+                  - **Precision:** `32.05%`
+                  - **Recall:** `38.46%`
+                  - **F1-Score:** `34.97%`
 
                 ---
 
                 ### 💬 Pipeline 2: Student Doubt Triage
-                - **Dataset Built:** CS1QA Educational Programming Q&A Dataset (24,381 annotated queries across 9 topic categories: variable, task, algorithm, logical, error, code_explain, usage, reasoning, code_understanding).
-                - **NLP Preprocessing:** Lowercasing, URL & punctuation removal, Lemmatization + TF-IDF Vectorizer (10,000 max features, bigrams) + Heuristic Keyword Urgency derivation (HIGH/MEDIUM/LOW).
+                - **Dataset Built:** CS1QA Educational Programming Q&A Dataset (9,237 annotated queries across 9 topic categories: syntax, logic, runtime, conceptual, output, debugging, implementation, design, other).
+                - **NLP Preprocessing:** Lowercasing, URL & punctuation removal, Lemmatization + TF-IDF Vectorizer (5,000 features, bigrams) + Heuristic Keyword Urgency derivation (HIGH/MEDIUM/LOW).
                 - **Model Trained:** Calibrated LinearSVC + Confidence Threshold Optimizer.
-                - **Current Model Scores (CS1QA Dataset):**
-                  - **Test Accuracy:** `87.72%`
-                  - **Macro F1-Score:** `86.79%`
-                  - **Weighted F1-Score:** `87.73%`
+                - **Current Model Scores:**
+                  - **Test Accuracy:** `67.00%`
+                  - **Macro F1-Score:** `67.87%`
+                  - **Weighted F1-Score:** `67.45%`
                   - **Optimal Routing Confidence Threshold:** `0.60` (60%)
                 """)
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,7 +33,7 @@
 
         body {
             background-color: var(--bg-primary);
-            background-image: 
+            background-image:
                 radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
                 radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
             background-attachment: fixed;
@@ -327,7 +328,10 @@
             margin-bottom: 0.35rem;
         }
 
-        input[type="text"], input[type="number"], textarea, select {
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
             width: 100%;
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid var(--border-color);
@@ -339,7 +343,8 @@
             transition: all 0.2s ease;
         }
 
-        input:focus, textarea:focus {
+        input:focus,
+        textarea:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 10px var(--primary-glow);
@@ -406,8 +411,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .result-header {
@@ -500,437 +512,479 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <!-- Top Notice Banner -->
-    <div class="top-notice-banner">
-        <div class="top-notice-text">
-            <span>👉</span>
-            <span><strong>Notice:</strong> If this HTML page is not loading properly or slow on your browser, click to open the direct Gradio Interface:</span>
-        </div>
-        <a href="/gradio" target="_blank" class="top-notice-btn">Open Gradio App ↗️</a>
-    </div>
-
-    <!-- Header -->
-    <header>
-        <div class="badge-row">
-            <span class="badge status-live">● Service Live</span>
-            <span class="badge">KPMG AI/ML Pipeline</span>
-            <span class="badge">FastAPI v1.0.0</span>
-        </div>
-        <h1>LMS Code Grading & Student Doubt Triage</h1>
-        <p>Production Machine Learning Pipeline for Automated Code Software Quality Grading & Student Natural Language Doubt Triage System</p>
-        <div class="action-links">
-            <a href="/gradio" target="_blank" class="btn-link btn-primary">
-                Open Gradio App (/gradio) ↗️
-            </a>
-            <a href="/docs" target="_blank" class="btn-link">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
-                Interactive Swagger Docs (/docs)
-            </a>
-            <a href="/redoc" target="_blank" class="btn-link">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                ReDoc Specifications (/redoc)
-            </a>
-            <a href="/health" target="_blank" class="btn-link">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                API Health Check (/health)
-            </a>
-        </div>
-    </header>
-
-    <!-- Navigation Tabs -->
-    <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab(event, 'pipeline1')">Pipeline 1: Code Quality Grading</button>
-        <button class="tab-btn" onclick="switchTab(event, 'pipeline2')">Pipeline 2: Doubt Triage</button>
-        <button class="tab-btn" onclick="switchTab(event, 'scores')">📊 About Project, Datasets & Scores</button>
-        <button class="tab-btn" onclick="switchTab(event, 'health')">System Status & Models</button>
-    </div>
-
-    <!-- TAB 1: Code Grading -->
-    <div id="pipeline1" class="tab-content active">
-        <div class="grid-2">
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title">Code Software Metrics</span>
-                </div>
-                <div class="preset-buttons">
-                    <button class="btn-sm" onclick="loadGradingPreset('clean')">Load Clean Code Sample</button>
-                    <button class="btn-sm" onclick="loadGradingPreset('defective')">Load Defective Sample</button>
-                </div>
-                
-                <form id="gradingForm" onsubmit="handleGradingSubmit(event)">
-                    <div class="metrics-grid">
-                        <div class="metric-input"><label>LOC</label><input type="number" id="loc" value="0.08" step="any" required></div>
-                        <div class="metric-input"><label>CYCLO</label><input type="number" id="cyclo" value="0.43" step="any" required></div>
-                        <div class="metric-input"><label>LENGTH</label><input type="number" id="length" value="0.18" step="any" required></div>
-                        <div class="metric-input"><label>VOLUME</label><input type="number" id="volume" value="0.16" step="any" required></div>
-                        <div class="metric-input"><label>DIFFICULTY</label><input type="number" id="difficulty" value="0.0" step="any" required></div>
-                        <div class="metric-input"><label>INT_FAN_IN</label><input type="number" id="int_fan_in" value="0.0" step="any" required></div>
-                        <div class="metric-input"><label>INT_FAN_OUT</label><input type="number" id="int_fan_out" value="0.22" step="any" required></div>
-                        <div class="metric-input"><label>NUM_OPERATORS</label><input type="number" id="num_operators" value="0.14" step="any" required></div>
-                        <div class="metric-input"><label>NUM_OPERANDS</label><input type="number" id="num_operands" value="0.81" step="any" required></div>
-                        <div class="metric-input"><label>BRANCH_COUNT</label><input type="number" id="branch_count" value="0.64" step="any" required></div>
-                    </div>
-                    <button type="submit" class="btn-link btn-primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
-                        Run Code Quality Prediction
-                    </button>
-                </form>
+    <div class="container">
+        <!-- Top Notice Banner -->
+        <div class="top-notice-banner">
+            <div class="top-notice-text">
+                <span>👉</span>
+                <span><strong>Notice:</strong> If this HTML page is not loading properly or slow on your browser, click
+                    to open the direct Gradio Interface:</span>
             </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title">Prediction Results</span>
-                </div>
-                <div id="gradingPlaceholder" style="color: var(--text-muted); text-align: center; padding: 3rem 0;">
-                    Select a preset or enter metrics, then click "Run Code Quality Prediction".
-                </div>
-                <div id="gradingResult" class="result-box">
-                    <div class="result-header">
-                        <span style="font-size: 0.9rem; color: var(--text-muted);">Defect Assessment</span>
-                        <span id="gradingLabelBadge" class="result-badge no-defect">No Defect</span>
-                    </div>
-                    
-                    <div class="prob-bar-container">
-                        <div class="prob-label">
-                            <span>Defect Probability</span>
-                            <span id="defectProbText">0%</span>
-                        </div>
-                        <div class="prob-bar-bg">
-                            <div id="defectProbBar" class="prob-bar-fill" style="width: 0%;"></div>
-                        </div>
-                    </div>
-
-                    <div class="prob-bar-container" style="margin-top: 1rem;">
-                        <div class="prob-label">
-                            <span>Model Confidence</span>
-                            <span id="gradingConfidenceText">0%</span>
-                        </div>
-                        <div class="prob-bar-bg">
-                            <div id="gradingConfidenceBar" class="prob-bar-fill" style="width: 0%;"></div>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 1.5rem;">
-                        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Calculated Features</span>
-                        <pre id="gradingFeaturesJson" style="margin-top: 0.5rem;"></pre>
-                    </div>
-                </div>
-            </div>
+            <a href="/gradio" target="_blank" class="top-notice-btn">Open Gradio App ↗️</a>
         </div>
-    </div>
 
-    <!-- TAB 2: Doubt Triage -->
-    <div id="pipeline2" class="tab-content">
-        <div class="grid-2">
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title">Student Question Triage</span>
-                </div>
-                <div class="preset-buttons">
-                    <button class="btn-sm" onclick="loadDoubtPreset('code_error')">Java Error Sample</button>
-                    <button class="btn-sm" onclick="loadDoubtPreset('urgent')">Urgent Infrastructure Sample</button>
-                    <button class="btn-sm" onclick="loadDoubtPreset('general')">General Question Sample</button>
-                </div>
-                <form id="doubtForm" onsubmit="handleDoubtSubmit(event)">
-                    <div class="form-group">
-                        <label for="question">Student Question Text</label>
-                        <textarea id="question" placeholder="Enter student query or issue..." required>My program throws NullPointerException when accessing array element inside loop</textarea>
-                    </div>
-                    <button type="submit" class="btn-link btn-primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
-                        Classify Question & Triage
-                    </button>
-                </form>
+        <!-- Header -->
+        <header>
+            <div class="badge-row">
+                <span class="badge status-live">● Service Live</span>
+                <span class="badge">KPMG AI/ML Pipeline</span>
+                <span class="badge">FastAPI v1.0.0</span>
             </div>
+            <h1>LMS Code Grading & Student Doubt Triage</h1>
+            <p>Production Machine Learning Pipeline for Automated Code Software Quality Grading & Student Natural
+                Language Doubt Triage System</p>
+            <div class="action-links">
+                <a href="/gradio" target="_blank" class="btn-link btn-primary">
+                    Open Gradio App (/gradio) ↗️
+                </a>
+                <a href="/docs" target="_blank" class="btn-link">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    </svg>
+                    Interactive Swagger Docs (/docs)
+                </a>
+                <a href="/redoc" target="_blank" class="btn-link">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                    ReDoc Specifications (/redoc)
+                </a>
+                <a href="/health" target="_blank" class="btn-link">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    API Health Check (/health)
+                </a>
+            </div>
+        </header>
 
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title">Triage & Routing Decision</span>
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(event, 'pipeline1')">Pipeline 1: Code Quality
+                Grading</button>
+            <button class="tab-btn" onclick="switchTab(event, 'pipeline2')">Pipeline 2: Doubt Triage</button>
+            <button class="tab-btn" onclick="switchTab(event, 'scores')">📊 About Project, Datasets & Scores</button>
+            <button class="tab-btn" onclick="switchTab(event, 'health')">System Status & Models</button>
+        </div>
+
+        <!-- TAB 1: Code Grading -->
+        <div id="pipeline1" class="tab-content active">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Code Software Metrics</span>
+                    </div>
+                    <div class="preset-buttons">
+                        <button class="btn-sm" onclick="loadGradingPreset('clean')">Load Clean Code Sample</button>
+                        <button class="btn-sm" onclick="loadGradingPreset('defective')">Load Defective Sample</button>
+                    </div>
+
+                    <form id="gradingForm" onsubmit="handleGradingSubmit(event)">
+                        <div class="metrics-grid">
+                            <div class="metric-input"><label>LOC</label><input type="number" id="loc" value="0.08"
+                                    step="any" required></div>
+                            <div class="metric-input"><label>CYCLO</label><input type="number" id="cyclo" value="0.43"
+                                    step="any" required></div>
+                            <div class="metric-input"><label>LENGTH</label><input type="number" id="length" value="0.18"
+                                    step="any" required></div>
+                            <div class="metric-input"><label>VOLUME</label><input type="number" id="volume" value="0.16"
+                                    step="any" required></div>
+                            <div class="metric-input"><label>DIFFICULTY</label><input type="number" id="difficulty"
+                                    value="0.0" step="any" required></div>
+                            <div class="metric-input"><label>INT_FAN_IN</label><input type="number" id="int_fan_in"
+                                    value="0.0" step="any" required></div>
+                            <div class="metric-input"><label>INT_FAN_OUT</label><input type="number" id="int_fan_out"
+                                    value="0.22" step="any" required></div>
+                            <div class="metric-input"><label>NUM_OPERATORS</label><input type="number"
+                                    id="num_operators" value="0.14" step="any" required></div>
+                            <div class="metric-input"><label>NUM_OPERANDS</label><input type="number" id="num_operands"
+                                    value="0.81" step="any" required></div>
+                            <div class="metric-input"><label>BRANCH_COUNT</label><input type="number" id="branch_count"
+                                    value="0.64" step="any" required></div>
+                        </div>
+                        <button type="submit" class="btn-link btn-primary"
+                            style="width: 100%; justify-content: center; padding: 0.75rem;">
+                            Run Code Quality Prediction
+                        </button>
+                    </form>
                 </div>
-                <div id="doubtPlaceholder" style="color: var(--text-muted); text-align: center; padding: 3rem 0;">
-                    Enter a question above and click "Classify Question & Triage".
-                </div>
-                <div id="doubtResult" class="result-box">
-                    <div class="result-header">
-                        <div>
-                            <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Predicted Topic</span>
-                            <strong id="doubtTopic" style="font-size: 1.1rem; color: var(--text-main);">Java Programming</strong>
-                        </div>
-                        <span id="urgencyBadge" class="result-badge urgency-MEDIUM">MEDIUM URGENCY</span>
-                    </div>
 
-                    <div style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(255,255,255,0.03); border-radius: 8px;">
-                        <span style="font-size: 0.8rem; color: var(--text-muted);">Assigned Route:</span>
-                        <strong id="doubtRoute" style="color: #a5b4fc; font-size: 0.95rem; margin-left: 0.5rem;">Teacher Review</strong>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Prediction Results</span>
                     </div>
-
-                    <div class="prob-bar-container">
-                        <div class="prob-label">
-                            <span>Top Prediction Confidence</span>
-                            <span id="doubtConfidenceText">0%</span>
-                        </div>
-                        <div class="prob-bar-bg">
-                            <div id="doubtConfidenceBar" class="prob-bar-fill" style="width: 0%;"></div>
-                        </div>
+                    <div id="gradingPlaceholder" style="color: var(--text-muted); text-align: center; padding: 3rem 0;">
+                        Select a preset or enter metrics, then click "Run Code Quality Prediction".
                     </div>
+                    <div id="gradingResult" class="result-box">
+                        <div class="result-header">
+                            <span style="font-size: 0.9rem; color: var(--text-muted);">Defect Assessment</span>
+                            <span id="gradingLabelBadge" class="result-badge no-defect">No Defect</span>
+                        </div>
 
-                    <div style="margin-top: 1.5rem;">
-                        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Category Probabilities</span>
-                        <div id="classProbabilitiesBars" style="margin-top: 0.75rem;"></div>
+                        <div class="prob-bar-container">
+                            <div class="prob-label">
+                                <span>Defect Probability</span>
+                                <span id="defectProbText">0%</span>
+                            </div>
+                            <div class="prob-bar-bg">
+                                <div id="defectProbBar" class="prob-bar-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="prob-bar-container" style="margin-top: 1rem;">
+                            <div class="prob-label">
+                                <span>Model Confidence</span>
+                                <span id="gradingConfidenceText">0%</span>
+                            </div>
+                            <div class="prob-bar-bg">
+                                <div id="gradingConfidenceBar" class="prob-bar-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1.5rem;">
+                            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Calculated
+                                Features</span>
+                            <pre id="gradingFeaturesJson" style="margin-top: 0.5rem;"></pre>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- TAB 3: About Project, Datasets & Model Scores -->
-    <div id="scores" class="tab-content">
-        <div class="card">
-            <div class="card-header">
-                <span class="card-title">📌 Project Overview</span>
+        <!-- TAB 2: Doubt Triage -->
+        <div id="pipeline2" class="tab-content">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Student Question Triage</span>
+                    </div>
+                    <div class="preset-buttons">
+                        <button class="btn-sm" onclick="loadDoubtPreset('code_error')">Java Error Sample</button>
+                        <button class="btn-sm" onclick="loadDoubtPreset('urgent')">Urgent Infrastructure Sample</button>
+                        <button class="btn-sm" onclick="loadDoubtPreset('general')">General Question Sample</button>
+                    </div>
+                    <form id="doubtForm" onsubmit="handleDoubtSubmit(event)">
+                        <div class="form-group">
+                            <label for="question">Student Question Text</label>
+                            <textarea id="question" placeholder="Enter student query or issue..."
+                                required>My program throws NullPointerException when accessing array element inside loop</textarea>
+                        </div>
+                        <button type="submit" class="btn-link btn-primary"
+                            style="width: 100%; justify-content: center; padding: 0.75rem;">
+                            Classify Question & Triage
+                        </button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Triage & Routing Decision</span>
+                    </div>
+                    <div id="doubtPlaceholder" style="color: var(--text-muted); text-align: center; padding: 3rem 0;">
+                        Enter a question above and click "Classify Question & Triage".
+                    </div>
+                    <div id="doubtResult" class="result-box">
+                        <div class="result-header">
+                            <div>
+                                <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Predicted
+                                    Topic</span>
+                                <strong id="doubtTopic" style="font-size: 1.1rem; color: var(--text-main);">Java
+                                    Programming</strong>
+                            </div>
+                            <span id="urgencyBadge" class="result-badge urgency-MEDIUM">MEDIUM URGENCY</span>
+                        </div>
+
+                        <div
+                            style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(255,255,255,0.03); border-radius: 8px;">
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Assigned Route:</span>
+                            <strong id="doubtRoute"
+                                style="color: #a5b4fc; font-size: 0.95rem; margin-left: 0.5rem;">Teacher Review</strong>
+                        </div>
+
+                        <div class="prob-bar-container">
+                            <div class="prob-label">
+                                <span>Top Prediction Confidence</span>
+                                <span id="doubtConfidenceText">0%</span>
+                            </div>
+                            <div class="prob-bar-bg">
+                                <div id="doubtConfidenceBar" class="prob-bar-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1.5rem;">
+                            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Category
+                                Probabilities</span>
+                            <div id="classProbabilitiesBars" style="margin-top: 0.75rem;"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <p style="color: var(--text-muted); margin-bottom: 1rem;">
-                This system provides an end-to-end Machine Learning solution for Learning Management Systems (LMS). It automates student code grading via software engineering defect prediction and triages incoming student programming doubts into actionable topics, urgency levels, and routing decisions.
-            </p>
         </div>
 
-        <div class="grid-2">
-            <!-- Pipeline 1 Details -->
+        <!-- TAB 3: About Project, Datasets & Model Scores -->
+        <div id="scores" class="tab-content">
             <div class="card">
                 <div class="card-header">
-                    <span class="card-title">Pipeline 1: Code Quality Grading</span>
+                    <span class="card-title">📌 Project Overview</span>
                 </div>
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                    <strong>Dataset Built:</strong> NASA KC1 Software Defect Dataset (1,000+ software modules). Combines McCabe cyclomatic complexity, Halstead program volume/effort metrics, and line counts.
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                    This system provides an end-to-end Machine Learning solution for Learning Management Systems (LMS).
+                    It automates student code grading via software engineering defect prediction and triages incoming
+                    student programming doubts into actionable topics, urgency levels, and routing decisions.
                 </p>
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                    <strong>Engineered Features:</strong>
-                </p>
-                <div class="chip-container">
-                    <span class="chip">Complexity_per_LOC</span>
-                    <span class="chip">Branch_Density</span>
-                    <span class="chip">Fan_Ratio</span>
-                    <span class="chip">Complexity_x_LOC</span>
-                    <span class="chip">Halstead_per_LOC</span>
+            </div>
+
+            <div class="grid-2">
+                <!-- Pipeline 1 Details -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Pipeline 1: Code Quality Grading</span>
+                    </div>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                        <strong>Dataset Built:</strong> NASA KC1 Software Defect Dataset (1,000+ software modules).
+                        Combines McCabe cyclomatic complexity, Halstead program volume/effort metrics, and line counts.
+                    </p>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                        <strong>Engineered Features:</strong>
+                    </p>
+                    <div class="chip-container">
+                        <span class="chip">Complexity_per_LOC</span>
+                        <span class="chip">Branch_Density</span>
+                        <span class="chip">Fan_Ratio</span>
+                        <span class="chip">Complexity_x_LOC</span>
+                        <span class="chip">Halstead_per_LOC</span>
+                    </div>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 1rem; margin-bottom: 0.5rem;">
+                        <strong>Model Architecture:</strong> LightGBM (Gradient Boosting) + Optuna Hyperparameter Tuning
+                        + Random Forest Baseline.
+                    </p>
+                    <h4 style="margin-top: 1rem; font-size: 0.95rem; color: var(--text-main);">Current Model Scores:
+                    </h4>
+                    <div class="scores-grid">
+                        <div class="score-card">
+                            <div class="score-lbl">Test Accuracy</div>
+                            <div class="score-val">53.50%</div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-lbl">ROC-AUC</div>
+                            <div class="score-val">0.4815</div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-lbl">Precision</div>
+                            <div class="score-val">32.05%</div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-lbl">Recall</div>
+                            <div class="score-val">38.46%</div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-lbl">F1-Score</div>
+                            <div class="score-val">34.97%</div>
+                        </div>
+                    </div>
                 </div>
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 1rem; margin-bottom: 0.5rem;">
-                    <strong>Model Architecture:</strong> LightGBM (Gradient Boosting) + Optuna Hyperparameter Tuning + Random Forest Baseline.
-                </p>
-                <h4 style="margin-top: 1rem; font-size: 0.95rem; color: var(--text-main);">Current Model Scores (NASA KC1 Dataset):</h4>
-                <div class="scores-grid">
-                    <div class="score-card">
-                        <div class="score-lbl">Test Accuracy</div>
-                        <div class="score-val">86.73%</div>
+
+                <!-- Pipeline 2 Details -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Pipeline 2: Student Doubt Triage</span>
                     </div>
-                    <div class="score-card">
-                        <div class="score-lbl">ROC-AUC</div>
-                        <div class="score-val">0.7991</div>
-                    </div>
-                    <div class="score-card">
-                        <div class="score-lbl">Precision</div>
-                        <div class="score-val">63.64%</div>
-                    </div>
-                    <div class="score-card">
-                        <div class="score-lbl">Recall</div>
-                        <div class="score-val">32.31%</div>
-                    </div>
-                    <div class="score-card">
-                        <div class="score-lbl">F1-Score</div>
-                        <div class="score-val">42.86%</div>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                        <strong>Dataset Built:</strong> CS1QA Educational Programming Q&A Dataset (9,237 annotated
+                        student queries across 9 question categories: syntax, logic, runtime, conceptual, output,
+                        debugging, implementation, design, other).
+                    </p>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                        <strong>NLP Preprocessing & Routing:</strong> Lowercasing, URL/punctuation removal,
+                        Lemmatization + TF-IDF Vectorization (5000 max features, bigrams) + Heuristic Keyword Urgency
+                        derivation (HIGH / MEDIUM / LOW).
+                    </p>
+                    <h4 style="margin-top: 1rem; font-size: 0.95rem; color: var(--text-main);">Current Model Scores:
+                    </h4>
+                    <div class="scores-grid">
+                        <div class="score-card">
+                            <div class="score-lbl">Test Accuracy</div>
+                            <div class="score-val">67.00%</div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-lbl">Macro F1</div>
+                            <div class="score-val">67.87%</div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-lbl">Weighted F1</div>
+                            <div class="score-val">67.45%</div>
+                        </div>
+                        <div class="score-card">
+                            <div class="score-lbl">Confidence Threshold</div>
+                            <div class="score-val">0.60</div>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Pipeline 2 Details -->
+        <!-- TAB 4: System Status -->
+        <div id="health" class="tab-content">
             <div class="card">
                 <div class="card-header">
-                    <span class="card-title">Pipeline 2: Student Doubt Triage</span>
+                    <span class="card-title">API & Model Status</span>
+                    <button class="btn-sm" onclick="checkHealth()">↻ Refresh Status</button>
                 </div>
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                    <strong>Dataset Built:</strong> CS1QA Educational Programming Q&A Dataset (24,381 annotated queries across 9 topic categories: variable, task, algorithm, logical, error, code_explain, usage, reasoning, code_understanding).
-                </p>
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                    <strong>NLP Preprocessing & Routing:</strong> Lowercasing, URL & punctuation removal, Lemmatization + TF-IDF Vectorization (10,000 max features, bigrams) + Heuristic Keyword Urgency derivation (HIGH / MEDIUM / LOW).
-                </p>
-                <h4 style="margin-top: 1rem; font-size: 0.95rem; color: var(--text-main);">Current Model Scores (CS1QA Dataset):</h4>
-                <div class="scores-grid">
-                    <div class="score-card">
-                        <div class="score-lbl">Test Accuracy</div>
-                        <div class="score-val">87.72%</div>
-                    </div>
-                    <div class="score-card">
-                        <div class="score-lbl">Macro F1</div>
-                        <div class="score-val">86.79%</div>
-                    </div>
-                    <div class="score-card">
-                        <div class="score-lbl">Weighted F1</div>
-                        <div class="score-val">87.73%</div>
-                    </div>
-                    <div class="score-card">
-                        <div class="score-lbl">Confidence Threshold</div>
-                        <div class="score-val">0.60</div>
-                    </div>
-                </div>
+                <pre id="healthJson">Loading system status...</pre>
             </div>
+        </div>
+
+        <div class="footer">
+            <p>KPMG AI/ML Assessment Pipeline • Built with FastAPI, Scikit-Learn, LightGBM & NLTK</p>
         </div>
     </div>
 
-    <!-- TAB 4: System Status -->
-    <div id="health" class="tab-content">
-        <div class="card">
-            <div class="card-header">
-                <span class="card-title">API & Model Status</span>
-                <button class="btn-sm" onclick="checkHealth()">↻ Refresh Status</button>
-            </div>
-            <pre id="healthJson">Loading system status...</pre>
-        </div>
-    </div>
+    <script>
+        function switchTab(evt, tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-    <div class="footer">
-        <p>KPMG AI/ML Assessment Pipeline • Built with FastAPI, Scikit-Learn, LightGBM & NLTK</p>
-    </div>
-</div>
+            evt.currentTarget.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
 
-<script>
-    function switchTab(evt, tabId) {
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-        
-        evt.currentTarget.classList.add('active');
-        document.getElementById(tabId).classList.add('active');
-
-        if (tabId === 'health') {
-            checkHealth();
+            if (tabId === 'health') {
+                checkHealth();
+            }
         }
-    }
 
-    function loadGradingPreset(type) {
-        if (type === 'clean') {
-            document.getElementById('loc').value = 0.08;
-            document.getElementById('cyclo').value = 0.43;
-            document.getElementById('length').value = 0.18;
-            document.getElementById('volume').value = 0.16;
-            document.getElementById('difficulty').value = 0.0;
-            document.getElementById('int_fan_in').value = 0.0;
-            document.getElementById('int_fan_out').value = 0.22;
-            document.getElementById('num_operators').value = 0.14;
-            document.getElementById('num_operands').value = 0.81;
-            document.getElementById('branch_count').value = 0.64;
-        } else {
-            document.getElementById('loc').value = 0.89;
-            document.getElementById('cyclo').value = 0.0;
-            document.getElementById('length').value = 0.96;
-            document.getElementById('volume').value = 0.75;
-            document.getElementById('difficulty').value = 0.67;
-            document.getElementById('int_fan_in').value = 1.0;
-            document.getElementById('int_fan_out').value = 0.0;
-            document.getElementById('num_operators').value = 0.11;
-            document.getElementById('num_operands').value = 0.02;
-            document.getElementById('branch_count').value = 0.0;
+        function loadGradingPreset(type) {
+            if (type === 'clean') {
+                document.getElementById('loc').value = 0.08;
+                document.getElementById('cyclo').value = 0.43;
+                document.getElementById('length').value = 0.18;
+                document.getElementById('volume').value = 0.16;
+                document.getElementById('difficulty').value = 0.0;
+                document.getElementById('int_fan_in').value = 0.0;
+                document.getElementById('int_fan_out').value = 0.22;
+                document.getElementById('num_operators').value = 0.14;
+                document.getElementById('num_operands').value = 0.81;
+                document.getElementById('branch_count').value = 0.64;
+            } else {
+                document.getElementById('loc').value = 0.89;
+                document.getElementById('cyclo').value = 0.0;
+                document.getElementById('length').value = 0.96;
+                document.getElementById('volume').value = 0.75;
+                document.getElementById('difficulty').value = 0.67;
+                document.getElementById('int_fan_in').value = 1.0;
+                document.getElementById('int_fan_out').value = 0.0;
+                document.getElementById('num_operators').value = 0.11;
+                document.getElementById('num_operands').value = 0.02;
+                document.getElementById('branch_count').value = 0.0;
+            }
         }
-    }
 
-    function loadDoubtPreset(type) {
-        if (type === 'code_error') {
-            document.getElementById('question').value = "My code throws NullPointerException when calling array element inside nested loop in Java";
-        } else if (type === 'urgent') {
-            document.getElementById('question').value = "URGENT: Production database connection keeps timing out during load test deadline is in 1 hour!";
-        } else {
-            document.getElementById('question').value = "Where can I find the assignment submission link for module 3?";
+        function loadDoubtPreset(type) {
+            if (type === 'code_error') {
+                document.getElementById('question').value = "My code throws NullPointerException when calling array element inside nested loop in Java";
+            } else if (type === 'urgent') {
+                document.getElementById('question').value = "URGENT: Production database connection keeps timing out during load test deadline is in 1 hour!";
+            } else {
+                document.getElementById('question').value = "Where can I find the assignment submission link for module 3?";
+            }
         }
-    }
 
-    async function handleGradingSubmit(e) {
-        e.preventDefault();
-        const payload = {
-            LOC: parseFloat(document.getElementById('loc').value),
-            CYCLO: parseFloat(document.getElementById('cyclo').value),
-            LENGTH: parseFloat(document.getElementById('length').value),
-            VOLUME: parseFloat(document.getElementById('volume').value),
-            DIFFICULTY: parseFloat(document.getElementById('difficulty').value),
-            INT_FAN_IN: parseFloat(document.getElementById('int_fan_in').value),
-            INT_FAN_OUT: parseFloat(document.getElementById('int_fan_out').value),
-            NUM_OPERATORS: parseFloat(document.getElementById('num_operators').value),
-            NUM_OPERANDS: parseFloat(document.getElementById('num_operands').value),
-            BRANCH_COUNT: parseFloat(document.getElementById('branch_count').value)
-        };
+        async function handleGradingSubmit(e) {
+            e.preventDefault();
+            const payload = {
+                LOC: parseFloat(document.getElementById('loc').value),
+                CYCLO: parseFloat(document.getElementById('cyclo').value),
+                LENGTH: parseFloat(document.getElementById('length').value),
+                VOLUME: parseFloat(document.getElementById('volume').value),
+                DIFFICULTY: parseFloat(document.getElementById('difficulty').value),
+                INT_FAN_IN: parseFloat(document.getElementById('int_fan_in').value),
+                INT_FAN_OUT: parseFloat(document.getElementById('int_fan_out').value),
+                NUM_OPERATORS: parseFloat(document.getElementById('num_operators').value),
+                NUM_OPERANDS: parseFloat(document.getElementById('num_operands').value),
+                BRANCH_COUNT: parseFloat(document.getElementById('branch_count').value)
+            };
 
-        try {
-            const res = await fetch('/predict-grade', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
+            try {
+                const res = await fetch('/predict-grade', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
 
-            if (!res.ok) throw new Error(data.detail || 'Prediction failed');
+                if (!res.ok) throw new Error(data.detail || 'Prediction failed');
 
-            document.getElementById('gradingPlaceholder').style.display = 'none';
-            const resultBox = document.getElementById('gradingResult');
-            resultBox.classList.add('active');
+                document.getElementById('gradingPlaceholder').style.display = 'none';
+                const resultBox = document.getElementById('gradingResult');
+                resultBox.classList.add('active');
 
-            const badge = document.getElementById('gradingLabelBadge');
-            badge.textContent = data.prediction;
-            badge.className = `result-badge ${data.prediction === 'Defect' ? 'defect' : 'no-defect'}`;
+                const badge = document.getElementById('gradingLabelBadge');
+                badge.textContent = data.prediction;
+                badge.className = `result-badge ${data.prediction === 'Defect' ? 'defect' : 'no-defect'}`;
 
-            const defectPct = Math.round(data.defect_probability * 100);
-            document.getElementById('defectProbText').textContent = `${defectPct}%`;
-            document.getElementById('defectProbBar').style.width = `${defectPct}%`;
+                const defectPct = Math.round(data.defect_probability * 100);
+                document.getElementById('defectProbText').textContent = `${defectPct}%`;
+                document.getElementById('defectProbBar').style.width = `${defectPct}%`;
 
-            const confPct = Math.round(data.confidence * 100);
-            document.getElementById('gradingConfidenceText').textContent = `${confPct}%`;
-            document.getElementById('gradingConfidenceBar').style.width = `${confPct}%`;
+                const confPct = Math.round(data.confidence * 100);
+                document.getElementById('gradingConfidenceText').textContent = `${confPct}%`;
+                document.getElementById('gradingConfidenceBar').style.width = `${confPct}%`;
 
-            document.getElementById('gradingFeaturesJson').textContent = JSON.stringify(data.feature_values, null, 2);
+                document.getElementById('gradingFeaturesJson').textContent = JSON.stringify(data.feature_values, null, 2);
 
-        } catch (err) {
-            alert('Error: ' + err.message);
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
         }
-    }
 
-    async function handleDoubtSubmit(e) {
-        e.preventDefault();
-        const payload = {
-            question: document.getElementById('question').value
-        };
+        async function handleDoubtSubmit(e) {
+            e.preventDefault();
+            const payload = {
+                question: document.getElementById('question').value
+            };
 
-        try {
-            const res = await fetch('/predict-doubt', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
+            try {
+                const res = await fetch('/predict-doubt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
 
-            if (!res.ok) throw new Error(data.detail || 'Prediction failed');
+                if (!res.ok) throw new Error(data.detail || 'Prediction failed');
 
-            document.getElementById('doubtPlaceholder').style.display = 'none';
-            const resultBox = document.getElementById('doubtResult');
-            resultBox.classList.add('active');
+                document.getElementById('doubtPlaceholder').style.display = 'none';
+                const resultBox = document.getElementById('doubtResult');
+                resultBox.classList.add('active');
 
-            document.getElementById('doubtTopic').textContent = data.prediction;
-            document.getElementById('doubtRoute').textContent = data.route;
+                document.getElementById('doubtTopic').textContent = data.prediction;
+                document.getElementById('doubtRoute').textContent = data.route;
 
-            const urgencyBadge = document.getElementById('urgencyBadge');
-            urgencyBadge.textContent = `${data.urgency} URGENCY`;
-            urgencyBadge.className = `result-badge urgency-${data.urgency}`;
+                const urgencyBadge = document.getElementById('urgencyBadge');
+                urgencyBadge.textContent = `${data.urgency} URGENCY`;
+                urgencyBadge.className = `result-badge urgency-${data.urgency}`;
 
-            const confPct = Math.round(data.confidence * 100);
-            document.getElementById('doubtConfidenceText').textContent = `${confPct}%`;
-            document.getElementById('doubtConfidenceBar').style.width = `${confPct}%`;
+                const confPct = Math.round(data.confidence * 100);
+                document.getElementById('doubtConfidenceText').textContent = `${confPct}%`;
+                document.getElementById('doubtConfidenceBar').style.width = `${confPct}%`;
 
-            // Class probabilities breakdown
-            const barsContainer = document.getElementById('classProbabilitiesBars');
-            barsContainer.innerHTML = '';
-            if (data.all_probabilities) {
-                Object.entries(data.all_probabilities)
-                    .sort((a, b) => b[1] - a[1])
-                    .forEach(([cat, prob]) => {
-                        const pct = Math.round(prob * 100);
-                        const row = document.createElement('div');
-                        row.className = 'prob-bar-container';
-                        row.innerHTML = `
+                // Class probabilities breakdown
+                const barsContainer = document.getElementById('classProbabilitiesBars');
+                barsContainer.innerHTML = '';
+                if (data.all_probabilities) {
+                    Object.entries(data.all_probabilities)
+                        .sort((a, b) => b[1] - a[1])
+                        .forEach(([cat, prob]) => {
+                            const pct = Math.round(prob * 100);
+                            const row = document.createElement('div');
+                            row.className = 'prob-bar-container';
+                            row.innerHTML = `
                             <div class="prob-label">
                                 <span>${cat}</span>
                                 <span>${pct}%</span>
@@ -939,27 +993,28 @@
                                 <div class="prob-bar-fill" style="width: ${pct}%;"></div>
                             </div>
                         `;
-                        barsContainer.appendChild(row);
-                    });
+                            barsContainer.appendChild(row);
+                        });
+                }
+
+            } catch (err) {
+                alert('Error: ' + err.message);
             }
-
-        } catch (err) {
-            alert('Error: ' + err.message);
         }
-    }
 
-    async function checkHealth() {
-        const jsonEl = document.getElementById('healthJson');
-        try {
-            jsonEl.textContent = "Fetching status...";
-            const res = await fetch('/health');
-            const data = await res.json();
-            jsonEl.textContent = JSON.stringify(data, null, 2);
-        } catch (err) {
-            jsonEl.textContent = "Error fetching health status: " + err.message;
+        async function checkHealth() {
+            const jsonEl = document.getElementById('healthJson');
+            try {
+                jsonEl.textContent = "Fetching status...";
+                const res = await fetch('/health');
+                const data = await res.json();
+                jsonEl.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                jsonEl.textContent = "Error fetching health status: " + err.message;
+            }
         }
-    }
-</script>
+    </script>
 
 </body>
+
 </html>
