@@ -19,9 +19,14 @@ import sys
 import warnings
 from pathlib import Path
 
-# Suppress version mismatch warnings & Gradio telemetry
+# Suppress version mismatch warnings & Gradio telemetry, configure memory/matplotlib settings
 warnings.filterwarnings("ignore", category=UserWarning)
 os.environ["GRADIO_ANALYTICS_ENABLED"] = "False"
+os.environ["MPLCONFIGDIR"] = "/tmp/matplotlib"
+os.environ["N_JOBS"] = "1"
+
+import matplotlib
+matplotlib.use("Agg")
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse

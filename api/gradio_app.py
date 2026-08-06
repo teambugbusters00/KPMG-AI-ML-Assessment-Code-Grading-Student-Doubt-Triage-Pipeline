@@ -110,6 +110,11 @@ def create_gradio_app() -> gr.Blocks:
                 <div class="header-box">
                     <h1>LMS AI/ML Pipeline Dashboard</h1>
                     <p>Interactive Code Quality Grading & Student Doubt Triage System</p>
+                    <p style="margin-top: 0.75rem; font-size: 0.9rem; font-weight: 600;">
+                        👉 Links: <a href="/" target="_blank" style="color: #a5b4fc; text-decoration: underline;">Main HTML Dashboard ( / ) ↗️</a>
+                        &nbsp;|&nbsp;
+                        <a href="/docs" target="_blank" style="color: #a5b4fc; text-decoration: underline;">Swagger API Docs ( /docs ) ↗️</a>
+                    </p>
                 </div>
             """)
 
@@ -202,7 +207,40 @@ def create_gradio_app() -> gr.Blocks:
                     outputs=[doubt_topic, doubt_urgency, doubt_route, doubt_conf, doubt_probs]
                 )
 
-            # TAB 3: System Health
+            # TAB 3: About Project, Datasets & Scores
+            with gr.TabItem("About Project, Datasets & Scores"):
+                gr.Markdown("""
+                ## 📌 Project Overview
+                This production ML pipeline automates student code grading via software metrics and triages student programming questions into topics, urgency levels, and routing decisions.
+
+                ---
+
+                ### 🛠️ Pipeline 1: Code Quality Grading
+                - **Dataset Built:** NASA KC1 Software Defect Dataset (1,000+ software modules).
+                - **Raw Features:** LOC, CYCLO, LENGTH, VOLUME, DIFFICULTY, INT_FAN_IN, INT_FAN_OUT, NUM_OPERATORS, NUM_OPERANDS, BRANCH_COUNT.
+                - **Engineered Derived Features:** `Complexity_per_LOC`, `Branch_Density`, `Fan_Ratio`, `Complexity_x_LOC`, `Halstead_per_LOC`.
+                - **Model Trained:** LightGBM Classifier (Optuna tuned) + Random Forest Baseline.
+                - **Current Model Scores:**
+                  - **Test Accuracy:** `53.50%`
+                  - **Test ROC-AUC:** `0.4815`
+                  - **Precision:** `32.05%`
+                  - **Recall:** `38.46%`
+                  - **F1-Score:** `34.97%`
+
+                ---
+
+                ### 💬 Pipeline 2: Student Doubt Triage
+                - **Dataset Built:** CS1QA Educational Programming Q&A Dataset (9,237 annotated queries across 9 topic categories: syntax, logic, runtime, conceptual, output, debugging, implementation, design, other).
+                - **NLP Preprocessing:** Lowercasing, URL & punctuation removal, Lemmatization + TF-IDF Vectorizer (5,000 features, bigrams) + Heuristic Keyword Urgency derivation (HIGH/MEDIUM/LOW).
+                - **Model Trained:** Calibrated LinearSVC + Confidence Threshold Optimizer.
+                - **Current Model Scores:**
+                  - **Test Accuracy:** `67.00%`
+                  - **Macro F1-Score:** `67.87%`
+                  - **Weighted F1-Score:** `67.45%`
+                  - **Optimal Routing Confidence Threshold:** `0.60` (60%)
+                """)
+
+            # TAB 4: System Health
             with gr.TabItem("System Status & Models"):
                 gr.Markdown("### Status of Saved Model Artifacts")
                 btn_status = gr.Button("Refresh Model Status")

@@ -108,6 +108,8 @@ def load_models(models_dir: str) -> Dict[str, bool]:
                 _models["threshold"] = 0.7
 
         _models_loaded_flag = True
+        import gc
+        gc.collect()
         return status
 
 
@@ -119,6 +121,27 @@ def get_model_status() -> Dict[str, bool]:
         "tfidf_vectorizer": "tfidf_vectorizer" in _models,
         "label_encoder": "label_encoder" in _models,
     }
+
+
+# =============================================================================
+# Helper Functions for Inference Optimization
+# =============================================================================
+
+
+def _derive_urgency_text(text: str) -> str:
+    """Derive urgency directly from string without pandas overhead."""
+    from src.config import URGENCY_HIGH_KEYWORDS, URGENCY_MEDIUM_KEYWORDS
+    text_lower = text.lower()
+    if any(kw in text_lower for kw in URGENCY_HIGH_KEYWORDS):
+        return "HIGH"
+    if any(kw in text_lower for kw in URGENCY_MEDIUM_KEYWORDS):
+        return "MEDIUM"
+    return "LOW"
+
+
+def _route_prediction(confidence: float, threshold: float) -> str:
+    """Route prediction based on confidence threshold without matplotlib imports."""
+    return "Auto Approval" if confidence >= threshold else "Teacher Review"
 
 
 # =============================================================================
@@ -272,15 +295,11 @@ def predict_doubt(request: DoubtTriageRequest) -> DoubtTriageResponse:
     # Decode prediction
     prediction_label = label_encoder.inverse_transform([prediction_encoded])[0]
 
-    # Derive urgency
-    from src.data_loader import derive_urgency
-    import pandas as pd
-    urgency_df = pd.DataFrame({"question": [request.question]})
-    urgency = derive_urgency(urgency_df).iloc[0]
+    # Derive urgency directly without pandas overhead
+    urgency = _derive_urgency_text(request.question)
 
-    # Route
-    from src.threshold_optimizer import route_prediction
-    route = route_prediction(confidence, threshold)
+    # Route directly without matplotlib imports
+    route = _route_prediction(confidence, threshold)
 
     # All class probabilities
     all_probs = {

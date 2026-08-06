@@ -14,7 +14,7 @@ from typing import Dict, List, Any
 # Reproducibility
 # =============================================================================
 RANDOM_STATE: int = 42
-N_JOBS: int = -1
+N_JOBS: int = int(os.environ.get("N_JOBS", "1"))
 
 # =============================================================================
 # Project Paths

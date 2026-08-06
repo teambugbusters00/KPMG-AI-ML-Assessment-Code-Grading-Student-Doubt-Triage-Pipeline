@@ -8,7 +8,7 @@
         :root {
             --bg-primary: #0b0f19;
             --bg-secondary: #111827;
-            --bg-card: rgba(17, 24, 39, 0.7);
+            --bg-card: rgba(17, 24, 39, 0.75);
             --border-color: rgba(255, 255, 255, 0.08);
             --border-focus: rgba(99, 102, 241, 0.5);
             --primary: #6366f1;
@@ -33,14 +33,14 @@
         body {
             background-color: var(--bg-primary);
             background-image: 
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.12) 0px, transparent 50%);
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
             background-attachment: fixed;
             color: var(--text-main);
             font-family: var(--font-main);
             line-height: 1.6;
             min-height: 100vh;
-            padding: 2rem 1rem;
+            padding: 1.5rem 1rem;
         }
 
         .container {
@@ -48,10 +48,53 @@
             margin: 0 auto;
         }
 
+        /* Top Callout Banner */
+        .top-notice-banner {
+            background: linear-gradient(90deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+            border: 1px solid rgba(129, 140, 248, 0.4);
+            border-radius: 12px;
+            padding: 0.9rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.25);
+        }
+
+        .top-notice-text {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #e0e7ff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .top-notice-btn {
+            background: #ffffff;
+            color: #312e81;
+            font-weight: 700;
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .top-notice-btn:hover {
+            background: #e0e7ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+        }
+
         /* Header */
         header {
             text-align: center;
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
             padding: 2rem;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -98,7 +141,7 @@
         header p {
             color: var(--text-muted);
             font-size: 1rem;
-            max-width: 700px;
+            max-width: 750px;
             margin: 0 auto 1.5rem auto;
         }
 
@@ -205,6 +248,7 @@
             border-radius: 16px;
             padding: 1.75rem;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            margin-bottom: 1.5rem;
         }
 
         .card-header {
@@ -222,6 +266,54 @@
             color: var(--text-main);
         }
 
+        /* Metrics Score Table */
+        .scores-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .score-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .score-val {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #a5b4fc;
+            margin-top: 0.25rem;
+        }
+
+        .score-lbl {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Feature Chips */
+        .chip-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .chip {
+            background: rgba(99, 102, 241, 0.12);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #c7d2fe;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+        }
+
         /* Form elements */
         .form-group {
             margin-bottom: 1rem;
@@ -235,7 +327,7 @@
             margin-bottom: 0.35rem;
         }
 
-        input[type="text"], textarea, select {
+        input[type="text"], input[type="number"], textarea, select {
             width: 100%;
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid var(--border-color);
@@ -247,7 +339,7 @@
             transition: all 0.2s ease;
         }
 
-        input[type="text"]:focus, textarea:focus {
+        input:focus, textarea:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 10px var(--primary-glow);
@@ -411,6 +503,15 @@
 <body>
 
 <div class="container">
+    <!-- Top Notice Banner -->
+    <div class="top-notice-banner">
+        <div class="top-notice-text">
+            <span>👉</span>
+            <span><strong>Notice:</strong> If this HTML page is not loading properly or slow on your browser, click to open the direct Gradio Interface:</span>
+        </div>
+        <a href="/gradio" target="_blank" class="top-notice-btn">Open Gradio App ↗️</a>
+    </div>
+
     <!-- Header -->
     <header>
         <div class="badge-row">
@@ -419,10 +520,10 @@
             <span class="badge">FastAPI v1.0.0</span>
         </div>
         <h1>LMS Code Grading & Student Doubt Triage</h1>
-        <p>Production Machine Learning Pipeline for Automated Code Metrics Quality Grading & Student Query Triage</p>
+        <p>Production Machine Learning Pipeline for Automated Code Software Quality Grading & Student Natural Language Doubt Triage System</p>
         <div class="action-links">
             <a href="/gradio" target="_blank" class="btn-link btn-primary">
-                Open Gradio App (/gradio)
+                Open Gradio App (/gradio) ↗️
             </a>
             <a href="/docs" target="_blank" class="btn-link">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
@@ -441,9 +542,10 @@
 
     <!-- Navigation Tabs -->
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('pipeline1')">Pipeline 1: Code Quality Grading</button>
-        <button class="tab-btn" onclick="switchTab('pipeline2')">Pipeline 2: Doubt Triage</button>
-        <button class="tab-btn" onclick="switchTab('health')">System Status & Models</button>
+        <button class="tab-btn active" onclick="switchTab(event, 'pipeline1')">Pipeline 1: Code Quality Grading</button>
+        <button class="tab-btn" onclick="switchTab(event, 'pipeline2')">Pipeline 2: Doubt Triage</button>
+        <button class="tab-btn" onclick="switchTab(event, 'scores')">📊 About Project, Datasets & Scores</button>
+        <button class="tab-btn" onclick="switchTab(event, 'health')">System Status & Models</button>
     </div>
 
     <!-- TAB 1: Code Grading -->
@@ -582,7 +684,99 @@
         </div>
     </div>
 
-    <!-- TAB 3: System Status -->
+    <!-- TAB 3: About Project, Datasets & Model Scores -->
+    <div id="scores" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">📌 Project Overview</span>
+            </div>
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                This system provides an end-to-end Machine Learning solution for Learning Management Systems (LMS). It automates student code grading via software engineering defect prediction and triages incoming student programming doubts into actionable topics, urgency levels, and routing decisions.
+            </p>
+        </div>
+
+        <div class="grid-2">
+            <!-- Pipeline 1 Details -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Pipeline 1: Code Quality Grading</span>
+                </div>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                    <strong>Dataset Built:</strong> NASA KC1 Software Defect Dataset (1,000+ software modules). Combines McCabe cyclomatic complexity, Halstead program volume/effort metrics, and line counts.
+                </p>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                    <strong>Engineered Features:</strong>
+                </p>
+                <div class="chip-container">
+                    <span class="chip">Complexity_per_LOC</span>
+                    <span class="chip">Branch_Density</span>
+                    <span class="chip">Fan_Ratio</span>
+                    <span class="chip">Complexity_x_LOC</span>
+                    <span class="chip">Halstead_per_LOC</span>
+                </div>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 1rem; margin-bottom: 0.5rem;">
+                    <strong>Model Architecture:</strong> LightGBM (Gradient Boosting) + Optuna Hyperparameter Tuning + Random Forest Baseline.
+                </p>
+                <h4 style="margin-top: 1rem; font-size: 0.95rem; color: var(--text-main);">Current Model Scores:</h4>
+                <div class="scores-grid">
+                    <div class="score-card">
+                        <div class="score-lbl">Test Accuracy</div>
+                        <div class="score-val">53.50%</div>
+                    </div>
+                    <div class="score-card">
+                        <div class="score-lbl">ROC-AUC</div>
+                        <div class="score-val">0.4815</div>
+                    </div>
+                    <div class="score-card">
+                        <div class="score-lbl">Precision</div>
+                        <div class="score-val">32.05%</div>
+                    </div>
+                    <div class="score-card">
+                        <div class="score-lbl">Recall</div>
+                        <div class="score-val">38.46%</div>
+                    </div>
+                    <div class="score-card">
+                        <div class="score-lbl">F1-Score</div>
+                        <div class="score-val">34.97%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pipeline 2 Details -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Pipeline 2: Student Doubt Triage</span>
+                </div>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                    <strong>Dataset Built:</strong> CS1QA Educational Programming Q&A Dataset (9,237 annotated student queries across 9 question categories: syntax, logic, runtime, conceptual, output, debugging, implementation, design, other).
+                </p>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                    <strong>NLP Preprocessing & Routing:</strong> Lowercasing, URL/punctuation removal, Lemmatization + TF-IDF Vectorization (5000 max features, bigrams) + Heuristic Keyword Urgency derivation (HIGH / MEDIUM / LOW).
+                </p>
+                <h4 style="margin-top: 1rem; font-size: 0.95rem; color: var(--text-main);">Current Model Scores:</h4>
+                <div class="scores-grid">
+                    <div class="score-card">
+                        <div class="score-lbl">Test Accuracy</div>
+                        <div class="score-val">67.00%</div>
+                    </div>
+                    <div class="score-card">
+                        <div class="score-lbl">Macro F1</div>
+                        <div class="score-val">67.87%</div>
+                    </div>
+                    <div class="score-card">
+                        <div class="score-lbl">Weighted F1</div>
+                        <div class="score-val">67.45%</div>
+                    </div>
+                    <div class="score-card">
+                        <div class="score-lbl">Confidence Threshold</div>
+                        <div class="score-val">0.60</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 4: System Status -->
     <div id="health" class="tab-content">
         <div class="card">
             <div class="card-header">
@@ -599,11 +793,11 @@
 </div>
 
 <script>
-    function switchTab(tabId) {
+    function switchTab(evt, tabId) {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
         
-        event.target.classList.add('active');
+        evt.currentTarget.classList.add('active');
         document.getElementById(tabId).classList.add('active');
 
         if (tabId === 'health') {
@@ -645,6 +839,8 @@
         } else {
             document.getElementById('question').value = "Where can I find the assignment submission link for module 3?";
         }
+    }
+
     async function handleGradingSubmit(e) {
         e.preventDefault();
         const payload = {
