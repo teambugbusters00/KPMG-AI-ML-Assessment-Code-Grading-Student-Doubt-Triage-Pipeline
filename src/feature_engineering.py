@@ -102,12 +102,14 @@ def get_feature_availability_report() -> str:
 
 def engineer_software_defect_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Engineer software metrics for SoftwareDefectDataset.csv:
-      - Complexity_per_LOC = CYCLO / LOC
-      - Branch_Density = BRANCH_COUNT / LOC
-      - Fan_Ratio = INT_FAN_IN / INT_FAN_OUT
-      - Complexity_x_LOC = CYCLO * LOC
-      - Halstead_per_LOC = VOLUME / LOC
+    Engineer software metrics for SoftwareDefectDataset.csv.
+
+    Derives features in multiple categories:
+      - Ratio features: Complexity_per_LOC, Branch_Density, Fan_Ratio, Halstead_per_LOC
+      - Interaction features: LOC×DIFFICULTY, CYCLO×VOLUME, etc.
+      - Polynomial features: Squared terms for key metrics
+      - Log-transformed features: log1p transforms for skewed distributions
+      - Statistical aggregates: Mean/std of metric groups
 
     Args:
         df: Input DataFrame with SoftwareDefectDataset columns.
@@ -117,21 +119,81 @@ def engineer_software_defect_features(df: pd.DataFrame) -> pd.DataFrame:
     """
     df_eng = df.copy()
 
-    loc = df_eng["LOC"] if "LOC" in df_eng.columns else df_eng.get("loc", 1.0)
-    cyclo = df_eng["CYCLO"] if "CYCLO" in df_eng.columns else df_eng.get("v(g)", 0.0)
-    volume = df_eng["VOLUME"] if "VOLUME" in df_eng.columns else df_eng.get("v", 0.0)
-    branch = df_eng["BRANCH_COUNT"] if "BRANCH_COUNT" in df_eng.columns else df_eng.get("branchCount", 0.0)
-    fan_in = df_eng.get("INT_FAN_IN", 0.0)
-    fan_out = df_eng.get("INT_FAN_OUT", 0.0)
+    loc = df_eng.get("LOC", df_eng.get("loc", pd.Series(1.0, index=df_eng.index)))
+    cyclo = df_eng.get("CYCLO", df_eng.get("v(g)", pd.Series(0.0, index=df_eng.index)))
+    volume = df_eng.get("VOLUME", df_eng.get("v", pd.Series(0.0, index=df_eng.index)))
+    difficulty = df_eng.get("DIFFICULTY", pd.Series(0.0, index=df_eng.index))
+    branch = df_eng.get("BRANCH_COUNT", df_eng.get("branchCount", pd.Series(0.0, index=df_eng.index)))
+    fan_in = df_eng.get("INT_FAN_IN", pd.Series(0.0, index=df_eng.index))
+    fan_out = df_eng.get("INT_FAN_OUT", pd.Series(0.0, index=df_eng.index))
+    num_operators = df_eng.get("NUM_OPERATORS", pd.Series(0.0, index=df_eng.index))
+    num_operands = df_eng.get("NUM_OPERANDS", pd.Series(0.0, index=df_eng.index))
+    length = df_eng.get("LENGTH", pd.Series(0.0, index=df_eng.index))
 
-    # Derived features using safe division
-    df_eng["Complexity_per_LOC"] = df_eng.apply(lambda r: safe_divide(r.get("CYCLO", r.get("v(g)", 0)), r.get("LOC", r.get("loc", 1))), axis=1)
-    df_eng["Branch_Density"] = df_eng.apply(lambda r: safe_divide(r.get("BRANCH_COUNT", r.get("branchCount", 0)), r.get("LOC", r.get("loc", 1))), axis=1)
-    df_eng["Fan_Ratio"] = df_eng.apply(lambda r: safe_divide(r.get("INT_FAN_IN", 0), r.get("INT_FAN_OUT", 1)), axis=1)
+    # --- Ratio features ---
+    df_eng["Complexity_per_LOC"] = df_eng.apply(
+        lambda r: safe_divide(r.get("CYCLO", r.get("v(g)", 0)), r.get("LOC", r.get("loc", 1))), axis=1
+    )
+    df_eng["Branch_Density"] = df_eng.apply(
+        lambda r: safe_divide(r.get("BRANCH_COUNT", r.get("branchCount", 0)), r.get("LOC", r.get("loc", 1))), axis=1
+    )
+    df_eng["Fan_Ratio"] = df_eng.apply(
+        lambda r: safe_divide(r.get("INT_FAN_IN", 0), r.get("INT_FAN_OUT", 1)), axis=1
+    )
     df_eng["Complexity_x_LOC"] = cyclo * loc
-    df_eng["Halstead_per_LOC"] = df_eng.apply(lambda r: safe_divide(r.get("VOLUME", r.get("v", 0)), r.get("LOC", r.get("loc", 1))), axis=1)
+    df_eng["Halstead_per_LOC"] = df_eng.apply(
+        lambda r: safe_divide(r.get("VOLUME", r.get("v", 0)), r.get("LOC", r.get("loc", 1))), axis=1
+    )
 
-    logger.info("Engineered Software Defect features: Complexity_per_LOC, Branch_Density, Fan_Ratio, Complexity_x_LOC, Halstead_per_LOC")
+    # --- Interaction features (capture nonlinear relationships) ---
+    df_eng["LOC_x_DIFFICULTY"] = loc * difficulty
+    df_eng["CYCLO_x_VOLUME"] = cyclo * volume
+    df_eng["OPERATORS_x_OPERANDS"] = num_operators * num_operands
+    df_eng["LOC_x_BRANCH"] = loc * branch
+    df_eng["VOLUME_x_DIFFICULTY"] = volume * difficulty
+    df_eng["FAN_IN_x_FAN_OUT"] = fan_in * fan_out
+    df_eng["LENGTH_x_DIFFICULTY"] = length * difficulty
+    df_eng["CYCLO_x_BRANCH"] = cyclo * branch
+
+    # --- Difference features ---
+    df_eng["OPERATOR_OPERAND_DIFF"] = num_operators - num_operands
+    df_eng["FAN_IN_OUT_DIFF"] = fan_in - fan_out
+    df_eng["LOC_LENGTH_DIFF"] = loc - length
+
+    # --- Polynomial features (squared) for top metrics ---
+    df_eng["LOC_squared"] = loc ** 2
+    df_eng["CYCLO_squared"] = cyclo ** 2
+    df_eng["VOLUME_squared"] = volume ** 2
+    df_eng["BRANCH_squared"] = branch ** 2
+    df_eng["DIFFICULTY_squared"] = difficulty ** 2
+
+    # --- Log-transformed features (capture diminishing returns) ---
+    df_eng["LOC_log"] = np.log1p(loc)
+    df_eng["VOLUME_log"] = np.log1p(volume)
+    df_eng["CYCLO_log"] = np.log1p(cyclo)
+    df_eng["LENGTH_log"] = np.log1p(length)
+
+    # --- Statistical aggregation features ---
+    complexity_cols = [loc, cyclo, branch]
+    halstead_cols = [length, volume, difficulty, num_operators, num_operands]
+
+    df_eng["Complexity_Group_Mean"] = pd.concat(complexity_cols, axis=1).mean(axis=1)
+    df_eng["Complexity_Group_Std"] = pd.concat(complexity_cols, axis=1).std(axis=1)
+    df_eng["Halstead_Group_Mean"] = pd.concat(halstead_cols, axis=1).mean(axis=1)
+    df_eng["Halstead_Group_Std"] = pd.concat(halstead_cols, axis=1).std(axis=1)
+    df_eng["All_Features_Mean"] = pd.concat(complexity_cols + halstead_cols + [fan_in, fan_out], axis=1).mean(axis=1)
+    df_eng["All_Features_Std"] = pd.concat(complexity_cols + halstead_cols + [fan_in, fan_out], axis=1).std(axis=1)
+
+    # --- Ratio of operators to total tokens ---
+    df_eng["Operator_Ratio"] = df_eng.apply(
+        lambda r: safe_divide(r.get("NUM_OPERATORS", 0), r.get("NUM_OPERATORS", 0) + r.get("NUM_OPERANDS", 0)),
+        axis=1,
+    )
+
+    logger.info(
+        f"Engineered {df_eng.shape[1] - df.shape[1]} new features. "
+        f"Total columns: {df_eng.shape[1]}"
+    )
     return df_eng
 
 

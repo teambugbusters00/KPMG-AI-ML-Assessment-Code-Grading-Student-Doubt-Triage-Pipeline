@@ -86,11 +86,15 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event() -> None:
-    """Load trained models in background thread so Uvicorn binds port instantly."""
+    """Load trained models synchronously at startup to ensure they are ready."""
     import asyncio
     models_dir = str(PROJECT_ROOT / "models")
-    logger.info(f"Initiating background model loading from {models_dir}...")
-    asyncio.create_task(asyncio.to_thread(load_models, models_dir))
+    logger.info(f"Loading models from {models_dir}...")
+    try:
+        status = await asyncio.to_thread(load_models, models_dir)
+        logger.info(f"Model loading complete. Status: {status}")
+    except Exception as e:
+        logger.error(f"CRITICAL: Model loading failed during startup: {e}", exc_info=True)
 
 
 # =============================================================================

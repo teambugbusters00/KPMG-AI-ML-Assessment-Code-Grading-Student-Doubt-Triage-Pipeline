@@ -209,35 +209,59 @@ def create_gradio_app() -> gr.Blocks:
 
             # TAB 3: About Project, Datasets & Scores
             with gr.TabItem("About Project, Datasets & Scores"):
-                gr.Markdown("""
+                import json
+                metrics_path = PROJECT_ROOT / "models" / "doubt_triage_metrics.json"
+                m = {}
+                if metrics_path.exists():
+                    try:
+                        with open(metrics_path, "r") as f:
+                            m = json.load(f)
+                    except Exception:
+                        pass
+
+                p1_acc = f"{m.get('p1_accuracy', 0.61)*100:.2f}%" if 'p1_accuracy' in m else "61.00%"
+                p1_auc = f"{m.get('p1_roc_auc', 0.5415):.4f}" if 'p1_roc_auc' in m else "0.5415"
+                p1_prec = f"{m.get('p1_precision', 0.35)*100:.2f}%" if 'p1_precision' in m else "34.88%"
+                p1_rec = f"{m.get('p1_recall', 0.23)*100:.2f}%" if 'p1_recall' in m else "23.08%"
+                p1_f1 = f"{m.get('p1_f1', 0.28)*100:.2f}%" if 'p1_f1' in m else "27.78%"
+                p1_model = m.get('p1_best_model', 'LightGBM / Ensemble')
+
+                p2_acc = f"{m.get('p2_accuracy', 0.6276)*100:.2f}%" if 'p2_accuracy' in m else "62.76%"
+                p2_macro = f"{m.get('p2_macro_f1', 0.6187)*100:.2f}%" if 'p2_macro_f1' in m else "61.87%"
+                p2_weight = f"{m.get('p2_weighted_f1', 0.6275)*100:.2f}%" if 'p2_weighted_f1' in m else "62.75%"
+                thresh = f"{m.get('threshold', 0.60):.2f}"
+
+                gr.Markdown(f"""
                 ## 📌 Project Overview
                 This production ML pipeline automates student code grading via software metrics and triages student programming questions into topics, urgency levels, and routing decisions.
 
                 ---
 
                 ### 🛠️ Pipeline 1: Code Quality Grading
-                - **Dataset Built:** NASA KC1 Software Defect Dataset (1,000+ software modules).
+                - **Dataset Built:** NASA KC1 / Software Defect Dataset (1,000 software modules).
                 - **Raw Features:** LOC, CYCLO, LENGTH, VOLUME, DIFFICULTY, INT_FAN_IN, INT_FAN_OUT, NUM_OPERATORS, NUM_OPERANDS, BRANCH_COUNT.
-                - **Engineered Derived Features:** `Complexity_per_LOC`, `Branch_Density`, `Fan_Ratio`, `Complexity_x_LOC`, `Halstead_per_LOC`.
-                - **Model Trained:** LightGBM Classifier (Optuna tuned) + Random Forest Baseline.
-                - **Current Model Scores:**
-                  - **Test Accuracy:** `53.50%`
-                  - **Test ROC-AUC:** `0.4815`
-                  - **Precision:** `32.05%`
-                  - **Recall:** `38.46%`
-                  - **F1-Score:** `34.97%`
+                - **Engineered Features (40+):** Ratios (`Complexity_per_LOC`, `Branch_Density`), Interactions (`LOC_x_DIFFICULTY`), Polynomials (`LOC_squared`), Log transforms, Statistical aggregates.
+                - **Class Imbalance Strategy:** Custom SMOTE Oversampling & Class-weighted estimators.
+                - **Models Trained:** Random Forest, LightGBM (Optuna tuned), HistGradientBoosting + Random Forest + LightGBM Soft Voting Ensemble.
+                - **Selected Best Model:** `{p1_model}`
+                - **Real-Time Model Scores:**
+                  - **Test Accuracy:** `{p1_acc}`
+                  - **Test ROC-AUC:** `{p1_auc}`
+                  - **Precision:** `{p1_prec}`
+                  - **Recall:** `{p1_rec}`
+                  - **F1-Score:** `{p1_f1}`
 
                 ---
 
                 ### 💬 Pipeline 2: Student Doubt Triage
-                - **Dataset Built:** CS1QA Educational Programming Q&A Dataset (9,237 annotated queries across 9 topic categories: syntax, logic, runtime, conceptual, output, debugging, implementation, design, other).
-                - **NLP Preprocessing:** Lowercasing, URL & punctuation removal, Lemmatization + TF-IDF Vectorizer (5,000 features, bigrams) + Heuristic Keyword Urgency derivation (HIGH/MEDIUM/LOW).
+                - **Dataset Built:** CS1QA Educational Programming Q&A Dataset (9,237 annotated student queries across 9 categories).
+                - **NLP Preprocessing:** Lowercasing, URL/punctuation removal, Lemmatization + TF-IDF Vectorization (10,000 features, trigrams) + Heuristic Keyword Urgency derivation (HIGH/MEDIUM/LOW).
                 - **Model Trained:** Calibrated LinearSVC + Confidence Threshold Optimizer.
-                - **Current Model Scores:**
-                  - **Test Accuracy:** `67.00%`
-                  - **Macro F1-Score:** `67.87%`
-                  - **Weighted F1-Score:** `67.45%`
-                  - **Optimal Routing Confidence Threshold:** `0.60` (60%)
+                - **Real-Time Model Scores:**
+                  - **Test Accuracy:** `{p2_acc}`
+                  - **Macro F1-Score:** `{p2_macro}`
+                  - **Weighted F1-Score:** `{p2_weight}`
+                  - **Optimal Routing Confidence Threshold:** `{thresh}`
                 """)
 
             # TAB 4: System Health

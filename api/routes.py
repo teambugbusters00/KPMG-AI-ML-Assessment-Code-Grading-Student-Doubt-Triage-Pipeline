@@ -228,6 +228,7 @@ def _build_code_features(request: CodeGradingRequest) -> Dict[str, float]:
     branch_count = float(request.branch_count if request.branch_count is not None else (request.branchCount or 1.0))
 
     features: Dict[str, float] = {
+        # --- Raw features ---
         "LOC": loc,
         "CYCLO": cyclo,
         "LENGTH": length,
@@ -238,12 +239,51 @@ def _build_code_features(request: CodeGradingRequest) -> Dict[str, float]:
         "NUM_OPERATORS": num_operators,
         "NUM_OPERANDS": num_operands,
         "BRANCH_COUNT": branch_count,
+        # --- Ratio features ---
         "Complexity_per_LOC": safe_divide(cyclo, loc),
         "Branch_Density": safe_divide(branch_count, loc),
         "Fan_Ratio": safe_divide(int_fan_in, int_fan_out),
         "Complexity_x_LOC": cyclo * loc,
         "Halstead_per_LOC": safe_divide(volume, loc),
+        # --- Interaction features ---
+        "LOC_x_DIFFICULTY": loc * difficulty,
+        "CYCLO_x_VOLUME": cyclo * volume,
+        "OPERATORS_x_OPERANDS": num_operators * num_operands,
+        "LOC_x_BRANCH": loc * branch_count,
+        "VOLUME_x_DIFFICULTY": volume * difficulty,
+        "FAN_IN_x_FAN_OUT": int_fan_in * int_fan_out,
+        "LENGTH_x_DIFFICULTY": length * difficulty,
+        "CYCLO_x_BRANCH": cyclo * branch_count,
+        # --- Difference features ---
+        "OPERATOR_OPERAND_DIFF": num_operators - num_operands,
+        "FAN_IN_OUT_DIFF": int_fan_in - int_fan_out,
+        "LOC_LENGTH_DIFF": loc - length,
+        # --- Polynomial features ---
+        "LOC_squared": loc ** 2,
+        "CYCLO_squared": cyclo ** 2,
+        "VOLUME_squared": volume ** 2,
+        "BRANCH_squared": branch_count ** 2,
+        "DIFFICULTY_squared": difficulty ** 2,
+        # --- Log-transformed features ---
+        "LOC_log": float(np.log1p(loc)),
+        "VOLUME_log": float(np.log1p(volume)),
+        "CYCLO_log": float(np.log1p(cyclo)),
+        "LENGTH_log": float(np.log1p(length)),
     }
+
+    # --- Statistical aggregation features ---
+    import statistics
+    complexity_vals = [loc, cyclo, branch_count]
+    halstead_vals = [length, volume, difficulty, num_operators, num_operands]
+    all_vals = complexity_vals + halstead_vals + [int_fan_in, int_fan_out]
+
+    features["Complexity_Group_Mean"] = statistics.mean(complexity_vals)
+    features["Complexity_Group_Std"] = statistics.pstdev(complexity_vals) if len(complexity_vals) > 1 else 0.0
+    features["Halstead_Group_Mean"] = statistics.mean(halstead_vals)
+    features["Halstead_Group_Std"] = statistics.pstdev(halstead_vals) if len(halstead_vals) > 1 else 0.0
+    features["All_Features_Mean"] = statistics.mean(all_vals)
+    features["All_Features_Std"] = statistics.pstdev(all_vals) if len(all_vals) > 1 else 0.0
+    features["Operator_Ratio"] = safe_divide(num_operators, num_operators + num_operands)
 
     return features
 

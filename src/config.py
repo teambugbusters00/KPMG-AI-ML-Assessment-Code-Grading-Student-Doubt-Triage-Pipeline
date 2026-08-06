@@ -97,8 +97,8 @@ LGBM_DEFAULT_PARAMS: Dict[str, Any] = {
 }
 
 # Optuna hyperparameter search space
-OPTUNA_N_TRIALS: int = 15
-OPTUNA_TIMEOUT: int = 60  # seconds
+OPTUNA_N_TRIALS: int = 100
+OPTUNA_TIMEOUT: int = 300  # seconds
 LGBM_PARAM_SPACE: Dict[str, Any] = {
     "n_estimators": {"low": 100, "high": 1000, "step": 50},
     "max_depth": {"low": 3, "high": 12},
@@ -115,8 +115,8 @@ LGBM_PARAM_SPACE: Dict[str, Any] = {
 # Pipeline 2 — Doubt Triage Configuration
 # =============================================================================
 # TF-IDF
-TFIDF_MAX_FEATURES: int = 5000
-TFIDF_NGRAM_RANGE: tuple = (1, 2)
+TFIDF_MAX_FEATURES: int = 10000
+TFIDF_NGRAM_RANGE: tuple = (1, 3)
 
 # Logistic Regression baseline
 LR_BASELINE_PARAMS: Dict[str, Any] = {

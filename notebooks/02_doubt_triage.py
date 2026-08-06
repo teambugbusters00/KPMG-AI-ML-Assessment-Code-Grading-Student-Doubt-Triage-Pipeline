@@ -657,13 +657,24 @@ le_path = MODELS_DIR / "doubt_triage_label_encoder.pkl"
 joblib.dump(le, str(le_path))
 print(f"✓ Label encoder saved to {le_path}")
 
-# Save best threshold
+# Save best threshold & metrics
 import json
-threshold_path = MODELS_DIR / "doubt_triage_threshold.json"
-with open(threshold_path, "w") as f:
-    json.dump({"best_threshold": best_threshold}, f)
-print(f"✓ Best threshold saved to {threshold_path}")
+metrics_path = MODELS_DIR / "doubt_triage_metrics.json"
+if metrics_path.exists():
+    with open(metrics_path, "r") as f:
+        all_metrics = json.load(f)
+else:
+    all_metrics = {}
 
-print(f"\n✓ Model saved to {DOUBT_TRIAGE_MODEL_PATH}")
+all_metrics["threshold"] = float(best_threshold)
+all_metrics["p2_accuracy"] = float(test_metrics["accuracy"])
+all_metrics["p2_macro_f1"] = float(test_metrics["f1_macro"])
+all_metrics["p2_weighted_f1"] = float(test_metrics["f1_weighted"])
+
+with open(metrics_path, "w") as f:
+    json.dump(all_metrics, f)
+
+print(f"✓ Metrics saved to {metrics_path}")
+print(f"✓ Model saved to {DOUBT_TRIAGE_MODEL_PATH}")
 print(f"✓ Vectorizer saved to {DOUBT_TRIAGE_VECTORIZER_PATH}")
 print("\n🎯 Pipeline 2 Complete!")
