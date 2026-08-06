@@ -522,14 +522,15 @@ print(comparison_df.to_string(index=False))
 print_section_header("13. SHAP Explainability")
 
 try:
-    # Compute SHAP values
-    shap_values = compute_shap_values(best_pipeline, X_test, feature_names)
+    # Use LightGBM tree pipeline directly for fast TreeExplainer calculation
+    shap_model_pipeline = smote_pipeline if "smote_pipeline" in locals() else lgbm_pipeline
+    shap_values = compute_shap_values(shap_model_pipeline, X_test, feature_names)
 
     # SHAP Summary Plot
     plot_shap_summary(
         shap_values,
         feature_names=feature_names,
-        title=f"SHAP Summary -- {best_name}",
+        title=f"SHAP Summary -- LightGBM Code Grading",
         save_name="p1_shap_summary.png",
     )
 
@@ -549,8 +550,7 @@ try:
         save_name="p1_shap_waterfall.png",
     )
 except Exception as e:
-    print(f"SHAP explainability skipped for ensemble model: {e}")
-    print("(SHAP TreeExplainer does not support VotingClassifier directly)")
+    print(f"SHAP explainability skipped: {e}")
 
 # %% [markdown]
 # ## 14. Threshold Optimization

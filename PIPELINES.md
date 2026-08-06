@@ -87,9 +87,9 @@ To extract maximal predictive signal, the pipeline engineers composite features 
 ### 7. Evaluation & Threshold Optimization
 - Sweeps binary classification decision thresholds ($0.25 \dots 0.75$) to optimize F1-score and Recall.
 - **Current Performance Highlights:**
-  - **Cross-Validation ROC-AUC:** `0.7049` (LightGBM+SMOTE) / `0.7780` (Voting Ensemble)
-  - **Test Recall (Defect Capture):** `87.69%` (at optimal threshold `0.25`)
-  - **Test F1-Score:** `45.78%`
+  - **Cross-Validation ROC-AUC:** `0.8515` (LightGBM+SMOTE) / `0.8883` (Soft-Voting Ensemble)
+  - **Test Recall (Defect Capture):** `84.13%` (at optimal threshold `0.30`)
+  - **Test F1-Score:** `44.17%` (at optimal threshold `0.30`)
 
 ### 8. Explainability
 - Integrates **SHAP (SHapley Additive exPlanations)** with `TreeExplainer` to produce:

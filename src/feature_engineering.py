@@ -184,11 +184,32 @@ def engineer_software_defect_features(df: pd.DataFrame) -> pd.DataFrame:
     df_eng["All_Features_Mean"] = pd.concat(complexity_cols + halstead_cols + [fan_in, fan_out], axis=1).mean(axis=1)
     df_eng["All_Features_Std"] = pd.concat(complexity_cols + halstead_cols + [fan_in, fan_out], axis=1).std(axis=1)
 
-    # --- Ratio of operators to total tokens ---
-    df_eng["Operator_Ratio"] = df_eng.apply(
-        lambda r: safe_divide(r.get("NUM_OPERATORS", 0), r.get("NUM_OPERATORS", 0) + r.get("NUM_OPERANDS", 0)),
-        axis=1,
-    )
+    # --- Maintainability Index & Density features (when full KC1 columns exist) ---
+    if "VOLUME" in df_eng.columns and "CYCLO" in df_eng.columns and "LOC" in df_eng.columns:
+        vol = df_eng["VOLUME"].clip(lower=1)
+        cyc = df_eng["CYCLO"]
+        loc_val = df_eng["LOC"].clip(lower=1)
+        df_eng["Maintainability_Index"] = 171 - 5.2 * np.log(vol) - 0.23 * cyc - 16.2 * np.log(loc_val)
+
+    if "LINES_OF_COMMENT" in df_eng.columns and "LOC" in df_eng.columns:
+        df_eng["Comment_Density"] = df_eng.apply(
+            lambda r: safe_divide(r.get("LINES_OF_COMMENT", 0), r.get("LOC", 0) + r.get("LINES_OF_COMMENT", 0)), axis=1
+        )
+
+    if "BUG_ESTIMATE" in df_eng.columns and "LOC" in df_eng.columns:
+        df_eng["Bug_Density"] = df_eng.apply(
+            lambda r: safe_divide(r.get("BUG_ESTIMATE", 0), r.get("LOC", 1)), axis=1
+        )
+
+    if "EFFORT" in df_eng.columns and "LOC" in df_eng.columns:
+        df_eng["Effort_Density"] = df_eng.apply(
+            lambda r: safe_divide(r.get("EFFORT", 0), r.get("LOC", 1)), axis=1
+        )
+
+    if "INTELLIGENCE" in df_eng.columns and "DIFFICULTY" in df_eng.columns:
+        df_eng["Halstead_Efficiency"] = df_eng.apply(
+            lambda r: safe_divide(r.get("INTELLIGENCE", 0), r.get("DIFFICULTY", 1)), axis=1
+        )
 
     logger.info(
         f"Engineered {df_eng.shape[1] - df.shape[1]} new features. "

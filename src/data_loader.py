@@ -43,21 +43,41 @@ logger = setup_logger(__name__)
 
 def load_software_defect_dataset(filepath: Optional[Path] = None) -> Tuple[pd.DataFrame, str]:
     """
-    Load the SoftwareDefectDataset.csv for Code Quality Grading (Pipeline 1).
+    Load the Software Defect Dataset for Code Quality Grading (Pipeline 1).
+    Prioritizes full NASA KC1 dataset (2,109 samples, 22 features) from raw/kc1.csv
+    when available, falling back to SoftwareDefectDataset.csv.
 
     Args:
-        filepath: Path to SoftwareDefectDataset.csv. Defaults to SOFTWARE_DEFECT_DATASET_PATH.
+        filepath: Path to dataset CSV. Defaults to raw/kc1.csv or SOFTWARE_DEFECT_DATASET_PATH.
 
     Returns:
         Tuple of (DataFrame, target_column_name).
     """
-    csv_path = filepath or SOFTWARE_DEFECT_DATASET_PATH
+    kc1_raw_path = RAW_DATA_DIR / "kc1.csv"
+    csv_path = filepath or (kc1_raw_path if kc1_raw_path.exists() else SOFTWARE_DEFECT_DATASET_PATH)
+
     if not csv_path.exists():
         logger.error(f"Software defect dataset not found at {csv_path}")
         raise FileNotFoundError(f"Software defect dataset not found at {csv_path}")
 
     logger.info(f"Loading Software Defect Dataset from {csv_path}")
     df = pd.read_csv(csv_path)
+
+    # Standardize target column if loading full kc1.csv
+    if "defects" in df.columns:
+        df["DEFECT_LABEL"] = df["defects"].astype(str).str.lower().map({"true": 1, "false": 0, "1": 1, "0": 0}).fillna(0).astype(int)
+        df = df.drop(columns=["defects"])
+
+    # Standardize feature names to uppercase where applicable for consistency
+    rename_dict = {
+        "loc": "LOC", "v(g)": "CYCLO", "ev(g)": "ESSENTIAL_CYCLO", "iv(g)": "DESIGN_CYCLO",
+        "n": "LENGTH", "v": "VOLUME", "l": "PROGRAM_LENGTH", "d": "DIFFICULTY",
+        "i": "INTELLIGENCE", "e": "EFFORT", "b": "BUG_ESTIMATE", "t": "TIME_ESTIMATE",
+        "lOCode": "LINES_OF_CODE", "lOComment": "LINES_OF_COMMENT", "lOBlank": "LINES_OF_BLANK",
+        "uniq_Op": "UNIQ_OPERATORS", "uniq_Opnd": "UNIQ_OPERANDS",
+        "total_Op": "NUM_OPERATORS", "total_Opnd": "NUM_OPERANDS", "branchCount": "BRANCH_COUNT",
+    }
+    df = df.rename(columns={k: v for k, v in rename_dict.items() if k in df.columns})
 
     target_col = SOFTWARE_DEFECT_TARGET_COLUMN
     if target_col in df.columns:

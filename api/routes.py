@@ -180,7 +180,17 @@ def predict_grade(request: CodeGradingRequest) -> CodeGradingResponse:
 
     # Build feature array in the same order as training
     features = _build_code_features(request)
-    X = np.array([list(features.values())])
+    feature_list = list(features.values())
+
+    # Safely match feature dimensions if model expects specific number of columns
+    scaler = getattr(model, "named_steps", {}).get("scaler", None)
+    expected_n = getattr(scaler, "n_features_in_", len(feature_list))
+    if len(feature_list) < expected_n:
+        feature_list += [0.0] * (expected_n - len(feature_list))
+    elif len(feature_list) > expected_n:
+        feature_list = feature_list[:expected_n]
+
+    X = np.array([feature_list])
 
     # Predict
     prediction = model.predict(X)[0]
