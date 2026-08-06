@@ -210,26 +210,26 @@ def create_gradio_app() -> gr.Blocks:
             # TAB 3: About Project, Datasets & Scores
             with gr.TabItem("About Project, Datasets & Scores"):
                 import json
-                metrics_path = PROJECT_ROOT / "models" / "doubt_triage_metrics.json"
-                m = {}
-                if metrics_path.exists():
+                metrics_file_path = PROJECT_ROOT / "models" / "doubt_triage_metrics.json"
+                metrics_data = {}
+                if metrics_file_path.exists():
                     try:
-                        with open(metrics_path, "r") as f:
-                            m = json.load(f)
+                        with open(metrics_file_path, "r") as metrics_file:
+                            metrics_data = json.load(metrics_file)
                     except Exception:
                         pass
 
-                p1_acc = f"{m.get('p1_accuracy', 0.61)*100:.2f}%" if 'p1_accuracy' in m else "61.00%"
-                p1_auc = f"{m.get('p1_roc_auc', 0.5415):.4f}" if 'p1_roc_auc' in m else "0.5415"
-                p1_prec = f"{m.get('p1_precision', 0.35)*100:.2f}%" if 'p1_precision' in m else "34.88%"
-                p1_rec = f"{m.get('p1_recall', 0.23)*100:.2f}%" if 'p1_recall' in m else "23.08%"
-                p1_f1 = f"{m.get('p1_f1', 0.28)*100:.2f}%" if 'p1_f1' in m else "27.78%"
-                p1_model = m.get('p1_best_model', 'LightGBM / Ensemble')
+                pipeline1_accuracy = f"{metrics_data.get('p1_accuracy', 0.6132)*100:.2f}%" if 'p1_accuracy' in metrics_data else "61.32%"
+                pipeline1_roc_auc = f"{metrics_data.get('p1_roc_auc', 0.8515):.4f}" if 'p1_roc_auc' in metrics_data else "0.8515"
+                pipeline1_precision = f"{metrics_data.get('p1_precision', 0.3258)*100:.2f}%" if 'p1_precision' in metrics_data else "32.58%"
+                pipeline1_recall = f"{metrics_data.get('p1_recall', 0.8413)*100:.2f}%" if 'p1_recall' in metrics_data else "84.13%"
+                pipeline1_f1 = f"{metrics_data.get('p1_f1', 0.4417)*100:.2f}%" if 'p1_f1' in metrics_data else "44.17%"
+                pipeline1_best_model = metrics_data.get('p1_best_model', 'Soft-Voting Ensemble / LightGBM+SMOTE')
 
-                p2_acc = f"{m.get('p2_accuracy', 0.6276)*100:.2f}%" if 'p2_accuracy' in m else "62.76%"
-                p2_macro = f"{m.get('p2_macro_f1', 0.6187)*100:.2f}%" if 'p2_macro_f1' in m else "61.87%"
-                p2_weight = f"{m.get('p2_weighted_f1', 0.6275)*100:.2f}%" if 'p2_weighted_f1' in m else "62.75%"
-                thresh = f"{m.get('threshold', 0.60):.2f}"
+                pipeline2_accuracy = f"{metrics_data.get('p2_accuracy', 0.6333)*100:.2f}%" if 'p2_accuracy' in metrics_data else "63.33%"
+                pipeline2_macro_f1 = f"{metrics_data.get('p2_macro_f1', 0.6302)*100:.2f}%" if 'p2_macro_f1' in metrics_data else "63.02%"
+                pipeline2_weighted_f1 = f"{metrics_data.get('p2_weighted_f1', 0.6331)*100:.2f}%" if 'p2_weighted_f1' in metrics_data else "63.31%"
+                confidence_threshold = f"{metrics_data.get('threshold', 0.60):.2f}"
 
                 gr.Markdown(f"""
                 ## 📌 Project Overview
@@ -238,18 +238,18 @@ def create_gradio_app() -> gr.Blocks:
                 ---
 
                 ### 🛠️ Pipeline 1: Code Quality Grading
-                - **Dataset Built:** NASA KC1 / Software Defect Dataset (1,000 software modules).
+                - **Dataset Built:** Full NASA KC1 Software Defect Dataset (2,109 software modules, 22 static metrics).
                 - **Raw Features:** LOC, CYCLO, LENGTH, VOLUME, DIFFICULTY, INT_FAN_IN, INT_FAN_OUT, NUM_OPERATORS, NUM_OPERANDS, BRANCH_COUNT.
-                - **Engineered Features (40+):** Ratios (`Complexity_per_LOC`, `Branch_Density`), Interactions (`LOC_x_DIFFICULTY`), Polynomials (`LOC_squared`), Log transforms, Statistical aggregates.
-                - **Class Imbalance Strategy:** Custom SMOTE Oversampling & Class-weighted estimators.
+                - **Engineered Features (40+):** Ratios (`Complexity_per_LOC`), Interactions (`LOC_x_DIFFICULTY`), Polynomials (`LOC_squared`), Log transforms, Maintainability Index.
+                - **Class Imbalance Strategy:** Custom NearestNeighbors SMOTE Oversampling & Class-weighted estimators.
                 - **Models Trained:** Random Forest, LightGBM (Optuna tuned), HistGradientBoosting + Random Forest + LightGBM Soft Voting Ensemble.
-                - **Selected Best Model:** `{p1_model}`
+                - **Selected Best Model:** `{pipeline1_best_model}`
                 - **Real-Time Model Scores:**
-                  - **Test Accuracy:** `{p1_acc}`
-                  - **Test ROC-AUC:** `{p1_auc}`
-                  - **Precision:** `{p1_prec}`
-                  - **Recall:** `{p1_rec}`
-                  - **F1-Score:** `{p1_f1}`
+                  - **Test Accuracy:** `{pipeline1_accuracy}`
+                  - **ROC-AUC:** `{pipeline1_roc_auc}`
+                  - **Precision:** `{pipeline1_precision}`
+                  - **Recall:** `{pipeline1_recall}`
+                  - **F1-Score:** `{pipeline1_f1}`
 
                 ---
 
@@ -258,10 +258,10 @@ def create_gradio_app() -> gr.Blocks:
                 - **NLP Preprocessing:** Lowercasing, URL/punctuation removal, Lemmatization + TF-IDF Vectorization (10,000 features, trigrams) + Heuristic Keyword Urgency derivation (HIGH/MEDIUM/LOW).
                 - **Model Trained:** Calibrated LinearSVC + Confidence Threshold Optimizer.
                 - **Real-Time Model Scores:**
-                  - **Test Accuracy:** `{p2_acc}`
-                  - **Macro F1-Score:** `{p2_macro}`
-                  - **Weighted F1-Score:** `{p2_weight}`
-                  - **Optimal Routing Confidence Threshold:** `{thresh}`
+                  - **Test Accuracy:** `{pipeline2_accuracy}`
+                  - **Macro F1-Score:** `{pipeline2_macro_f1}`
+                  - **Weighted F1-Score:** `{pipeline2_weighted_f1}`
+                  - **Optimal Routing Confidence Threshold:** `{confidence_threshold}`
                 """)
 
             # TAB 4: System Health

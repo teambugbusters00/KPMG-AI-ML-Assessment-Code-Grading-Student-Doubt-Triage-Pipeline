@@ -190,11 +190,11 @@ def predict_grade(request: CodeGradingRequest) -> CodeGradingResponse:
     elif len(feature_list) > expected_n:
         feature_list = feature_list[:expected_n]
 
-    X = np.array([feature_list])
+    input_feature_matrix = np.array([feature_list])
 
-    # Predict
-    prediction = model.predict(X)[0]
-    probabilities = model.predict_proba(X)[0]
+    # Predict defect probability and model confidence
+    prediction = model.predict(input_feature_matrix)[0]
+    probabilities = model.predict_proba(input_feature_matrix)[0]
     confidence = float(np.max(probabilities))
     defect_prob = float(probabilities[1]) if len(probabilities) > 1 else float(probabilities[0])
 
