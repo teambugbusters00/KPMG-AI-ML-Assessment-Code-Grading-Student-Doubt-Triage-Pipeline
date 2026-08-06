@@ -127,7 +127,7 @@ def clean_text_column(
 
     logger.info(
         f"Text cleaning complete. "
-        f"Avg length: {avg_len_before:.0f} → {avg_len_after:.0f} chars. "
+        f"Avg length: {avg_len_before:.0f} -> {avg_len_after:.0f} chars. "
         f"Empty after cleaning: {empty_count} rows."
     )
 

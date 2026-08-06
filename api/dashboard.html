@@ -717,27 +717,27 @@
                 <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 1rem; margin-bottom: 0.5rem;">
                     <strong>Model Architecture:</strong> LightGBM (Gradient Boosting) + Optuna Hyperparameter Tuning + Random Forest Baseline.
                 </p>
-                <h4 style="margin-top: 1rem; font-size: 0.95rem; color: var(--text-main);">Current Model Scores:</h4>
+                <h4 style="margin-top: 1rem; font-size: 0.95rem; color: var(--text-main);">Current Model Scores (NASA KC1 Dataset):</h4>
                 <div class="scores-grid">
                     <div class="score-card">
                         <div class="score-lbl">Test Accuracy</div>
-                        <div class="score-val">53.50%</div>
+                        <div class="score-val">86.73%</div>
                     </div>
                     <div class="score-card">
                         <div class="score-lbl">ROC-AUC</div>
-                        <div class="score-val">0.4815</div>
+                        <div class="score-val">0.7991</div>
                     </div>
                     <div class="score-card">
                         <div class="score-lbl">Precision</div>
-                        <div class="score-val">32.05%</div>
+                        <div class="score-val">63.64%</div>
                     </div>
                     <div class="score-card">
                         <div class="score-lbl">Recall</div>
-                        <div class="score-val">38.46%</div>
+                        <div class="score-val">32.31%</div>
                     </div>
                     <div class="score-card">
                         <div class="score-lbl">F1-Score</div>
-                        <div class="score-val">34.97%</div>
+                        <div class="score-val">42.86%</div>
                     </div>
                 </div>
             </div>
@@ -748,24 +748,24 @@
                     <span class="card-title">Pipeline 2: Student Doubt Triage</span>
                 </div>
                 <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                    <strong>Dataset Built:</strong> CS1QA Educational Programming Q&A Dataset (9,237 annotated student queries across 9 question categories: syntax, logic, runtime, conceptual, output, debugging, implementation, design, other).
+                    <strong>Dataset Built:</strong> CS1QA Educational Programming Q&A Dataset (24,381 annotated queries across 9 topic categories: variable, task, algorithm, logical, error, code_explain, usage, reasoning, code_understanding).
                 </p>
                 <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-                    <strong>NLP Preprocessing & Routing:</strong> Lowercasing, URL/punctuation removal, Lemmatization + TF-IDF Vectorization (5000 max features, bigrams) + Heuristic Keyword Urgency derivation (HIGH / MEDIUM / LOW).
+                    <strong>NLP Preprocessing & Routing:</strong> Lowercasing, URL & punctuation removal, Lemmatization + TF-IDF Vectorization (10,000 max features, bigrams) + Heuristic Keyword Urgency derivation (HIGH / MEDIUM / LOW).
                 </p>
-                <h4 style="margin-top: 1rem; font-size: 0.95rem; color: var(--text-main);">Current Model Scores:</h4>
+                <h4 style="margin-top: 1rem; font-size: 0.95rem; color: var(--text-main);">Current Model Scores (CS1QA Dataset):</h4>
                 <div class="scores-grid">
                     <div class="score-card">
                         <div class="score-lbl">Test Accuracy</div>
-                        <div class="score-val">67.00%</div>
+                        <div class="score-val">87.72%</div>
                     </div>
                     <div class="score-card">
                         <div class="score-lbl">Macro F1</div>
-                        <div class="score-val">67.87%</div>
+                        <div class="score-val">86.79%</div>
                     </div>
                     <div class="score-card">
                         <div class="score-lbl">Weighted F1</div>
-                        <div class="score-val">67.45%</div>
+                        <div class="score-val">87.73%</div>
                     </div>
                     <div class="score-card">
                         <div class="score-lbl">Confidence Threshold</div>

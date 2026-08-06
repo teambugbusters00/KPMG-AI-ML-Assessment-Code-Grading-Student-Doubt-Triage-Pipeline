@@ -230,9 +230,9 @@ def download_cs1qa_dataset(save_dir: Optional[Path] = None) -> Path:
 
 def _parse_cs1qa_json_files(data_dir: Path) -> pd.DataFrame:
     """
-    Parse CS1QA annotated JSON data files into a DataFrame.
+    Parse CS1QA annotated JSON and JSONL data files into a DataFrame.
 
-    Walks through the data directory, finds JSON files, and extracts
+    Walks through the data directory, finds JSON and JSONL files, and extracts
     question text, question type, code context, and answers.
 
     Args:
@@ -243,34 +243,39 @@ def _parse_cs1qa_json_files(data_dir: Path) -> pd.DataFrame:
     """
     records = []
 
-    # Walk through all JSON files in the data directory
+    # Walk through all JSON and JSONL files in the data directory
     for root, _, files in os.walk(data_dir):
         for filename in files:
-            if not filename.endswith(".json"):
+            if not (filename.endswith(".json") or filename.endswith(".jsonl")):
                 continue
             filepath = Path(root) / filename
 
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-
-                # Handle different JSON structures
-                if isinstance(data, list):
-                    for item in data:
-                        record = _extract_cs1qa_record(item)
-                        if record:
-                            records.append(record)
-                elif isinstance(data, dict):
-                    # Might be a dict of lists or a single record
-                    if "data" in data:
-                        for item in data["data"]:
-                            record = _extract_cs1qa_record(item)
-                            if record:
-                                records.append(record)
+                    if filename.endswith(".jsonl"):
+                        for line in f:
+                            if line.strip():
+                                item = json.loads(line)
+                                record = _extract_cs1qa_record(item)
+                                if record:
+                                    records.append(record)
                     else:
-                        record = _extract_cs1qa_record(data)
-                        if record:
-                            records.append(record)
+                        data = json.load(f)
+                        if isinstance(data, list):
+                            for item in data:
+                                record = _extract_cs1qa_record(item)
+                                if record:
+                                    records.append(record)
+                        elif isinstance(data, dict):
+                            if "data" in data:
+                                for item in data["data"]:
+                                    record = _extract_cs1qa_record(item)
+                                    if record:
+                                        records.append(record)
+                            else:
+                                record = _extract_cs1qa_record(data)
+                                if record:
+                                    records.append(record)
 
             except (json.JSONDecodeError, UnicodeDecodeError) as e:
                 logger.warning(f"Skipping {filepath}: {e}")
@@ -295,7 +300,7 @@ def _extract_cs1qa_record(item: dict) -> Optional[dict]:
         or None if essential fields are missing.
     """
     question = item.get("question", item.get("q", item.get("text", "")))
-    q_type = item.get("question_type", item.get("type", item.get("category", "")))
+    q_type = item.get("questionType", item.get("question_type", item.get("type", item.get("category", ""))))
     code = item.get("code", item.get("student_code", ""))
     answer = item.get("answer", item.get("a", ""))
 
